@@ -19,6 +19,23 @@ function concatArrStrings(selectedValues) {
 }
 
 class Example extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            serial: 1
+        }
+    }
+
+    onSelect() {
+        //console.log(this.refs.selectedValues)
+    }
+
+    onClick() {
+        this.setState({
+            serial: this.state.serial+1
+        })
+    }
+
     render() {
         var columns = [
             {
@@ -46,10 +63,15 @@ class Example extends Component {
                 ],
             },
         ]
+        for (let i = 0; i < this.state.serial; i++) {
+            columns[2].list.push({
+                key: i, value: i
+            })
+        }
         return <div>
-                <div>Hello world!</div>
-                click <UltraSelect columns={columns} onDidSelect={e => console.log("did select", e)}
-                                   setStaticText={concatArrStrings}></UltraSelect> to select
+                <div onClick={this.onClick.bind(this)}>Hello world!</div>
+                click <UltraSelect ref="ultra" columns={columns} onDidSelect={e => console.log("did select", e)} confirmButton="确定"
+                                   getStaticText={concatArrStrings} backdrop={false} onSelect={this.onSelect.bind(this)}></UltraSelect> to select
             </div>
     }
 }
