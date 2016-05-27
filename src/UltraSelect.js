@@ -62,7 +62,7 @@ export default class UltraSelect extends Component {
     }
 
     static defaultProps = {
-        rowsVisible: 5,
+        rowsVisible: 7,
         rowHeight: 25,
         rowHeightUnit: 'px',
         backdrop: true,
@@ -227,10 +227,14 @@ export default class UltraSelect extends Component {
     }
 
     getElemClass(elemIndex, columnIndex) {
-        if (elemIndex === this.state.selected[columnIndex]) return 'elem-level-1'
-        else if (Math.abs(elemIndex - this.state.selected[columnIndex]) === 1) return 'elem-level-2'
-        else if (Math.abs(elemIndex - this.state.selected[columnIndex]) === 2) return 'elem-level-3'
-        else return 'elem-level-4'
+        let distance = Math.abs(elemIndex - this.state.selected[columnIndex])
+        switch (distance) {
+            case 0: return 'elem-level-1'
+            case 1: return 'elem-level-2'
+            case 2: return 'elem-level-3'
+            default:
+                return 'elem-level-4'
+        }
     }
 
     onToggle(e) {

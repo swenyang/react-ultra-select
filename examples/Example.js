@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import UltraSelect from '../src/UltraSelect'
+//import UltraSelect from '../dist/react-ultra-select'
 
 import "./Example.less"
 
@@ -40,13 +41,21 @@ class Example extends Component {
         var columns = [
             {
                 list: [
+                    {key: 2011, value: 2011},
+                    {key: 2012, value: 2012},
+                    {key: 2013, value: 2013},
+                    {key: 2014, value: 2014},
+                    {key: 2015, value: 2015},
                     {key: 2016, value: 2016},
                     {key: 2017, value: 2017},
                     {key: 2018, value: 2018},
                     {key: 2019, value: 2019},
                     {key: 2020, value: 2020},
+                    {key: 2021, value: 2021},
+                    {key: 2022, value: 2022},
+                    {key: 2023, value: 2023},
                 ],
-                defaultIndex: 2
+                defaultIndex: 3
             },
             {
                 list: [

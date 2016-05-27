@@ -5,6 +5,13 @@
   transform: scale(@ratio);
 }
 
+.scaleAndRotateX(@ratio; @deg) {
+  -webkit-transform: scale(@ratio) rotateX(@deg);
+  -ms-transform: scale(@ratio) rotateX(@deg); // IE9 only
+  -o-transform: scale(@ratio) rotateX(@deg);
+  transform: scale(@ratio) rotateX(@deg);
+}
+
 .react-ultra-selector-static {
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -94,6 +101,7 @@
       //height: 2em;
       //line-height: 2em;
       color: #999;
+      font-size: 1.3em;
     }
 
     .elem-level-1 {
@@ -103,13 +111,13 @@
     }
 
     .elem-level-2 {
-      .scale(0.9);
+      .scaleAndRotateX(0.9; 15deg;)
     }
     .elem-level-3 {
-      .scale(0.8);
+      .scaleAndRotateX(0.8; 30deg;)
     }
     .elem-level-4 {
-      .scale(0.7);
+      .scaleAndRotateX(0.7; 45deg;)
     }
   }
 
