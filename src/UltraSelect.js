@@ -20,31 +20,13 @@ const positiveOddPropType = (props, propName, componentName) => {
     }
 }
 
-function _concatArrStrings(selectedValues) {
-    let ret = ''
-    for (let i = 0, l = selectedValues.length; i < l; i++) {
-        ret += (i === 0 ? '' : '-') + selectedValues[i]
-    }
-    return ret
-}
-
-function _calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
-    let start = Math.floor(visibleCells/2)
-    let end = numCells - Math.ceil(visibleCells/2)
-
-    if (offset >= 0) return start
-    let maxOffset = visibleCells * cellHeight - totalHeight
-    if (offset <= maxOffset) return end
-
-    offset = Math.abs(offset)
-    let num = Math.round(offset / cellHeight)
-    return start + num
-}
-
 export default class UltraSelect extends Component {
     static propTypes = {
         columns: PropTypes.arrayOf(PropTypes.shape({
-            list: PropTypes.oneOfType([PropTypes.array, PropTypes.func]).isRequired,
+            list: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.shape({
+                key: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+                value: PropTypes.node.isRequired,
+            })), PropTypes.func]).isRequired,
             defaultIndex: PropTypes.number,
         })).isRequired,
         rowsVisible: positiveOddPropType,
@@ -55,6 +37,7 @@ export default class UltraSelect extends Component {
         setStaticText: PropTypes.func,
         confirmButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
         externalStaticTextClass: PropTypes.string,
+        onDidSelect: PropTypes.func,
     }
 
     static defaultProps = {
@@ -65,20 +48,23 @@ export default class UltraSelect extends Component {
         confirmButton: 'CONFIRM',
     }
 
+    _selectedNew = false
+
     constructor(props) {
         let selected = []
         let numEmpty = Math.floor(props.rowsVisible / 2)
         for (let i = 0, l = props.columns.length; i < l; i++) {
             let newList = []
-            for (let j = 0; j < numEmpty; j++) newList.push('')
+            for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
             newList = newList.concat(props.columns[i].list)
-            for (let j = 0; j < numEmpty; j++) newList.push('')
+            for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
             props.columns[i].list = newList
 
             let d = props.columns[i].defaultIndex || 0
             d += numEmpty
+            let max = newList.length - Math.ceil(props.rowsVisible/2)
             if (d < numEmpty) d = numEmpty
-            if (d > newList.length - 1) d = newList.length - 1
+            if (d > max) d = max
             selected.push(d)
         }
 
@@ -87,28 +73,58 @@ export default class UltraSelect extends Component {
         this.onScrollEnd = this.onScrollEnd.bind(this)
         this.onToggle = this.onToggle.bind(this)
 
+        let selectedValues = this.getSelectedValues(props.columns, selected)
         this.state = {
             selected,
-            title: this.getTitle(props.columns, selected, false),
-            staticText: this.getTitle(props.columns, selected, true),
+            title: this.getTitle(selectedValues),
+            staticText: this.getStaticText(selectedValues),
             open: false,
         }
     }
 
-    getTitle(columns, selected, isStatic) {
+    getSelectedValues(columns, selected) {
         let ret = []
         for (let i = 0, l = columns.length; i < l; i++) {
             ret.push(columns[i].list[selected[i]])
         }
-        if (isStatic && this.props.setStaticText) {
-            return this.props.setStaticText(ret)
-        }
-        else if (!isStatic && this.props.setTitle) {
-            return this.props.setTitle(ret)
+        return ret
+    }
+
+    getTitle(selectedValues) {
+        if (this.props.setTitle) {
+            return this.props.setTitle(selectedValues)
         }
         else {
-            return _concatArrStrings(ret)
+            return this.concatArrStrings(selectedValues)
         }
+    }
+
+    getStaticText(selectedValues) {
+        if (this.props.setStaticText) {
+            return this.props.setStaticText(selectedValues)
+        }
+        else {
+            return this.concatArrStrings(selectedValues)
+        }
+    }
+
+    concatArrStrings(selectedValues) {
+        return <span>{
+                selectedValues.map((e, i) => <span key={i}>{i===0?'':'-'}{e.value}</span>)
+            }</span>
+    }
+
+    calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
+        let start = Math.floor(visibleCells/2)
+        let end = numCells - Math.ceil(visibleCells/2)
+
+        if (offset >= 0) return start
+        let maxOffset = visibleCells * cellHeight - totalHeight
+        if (offset <= maxOffset) return end
+
+        offset = Math.abs(offset)
+        let num = Math.round(offset / cellHeight)
+        return start + num
     }
 
     findIScrollIndex(instance) {
@@ -128,16 +144,18 @@ export default class UltraSelect extends Component {
         let elem = this.refs[`elem${index}`]
         if (elem) {
             let selectedBefore = this.state.selected[index]
-            let selectedNew = _calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
+            let selectedNew = this.calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
             if (selectedBefore !== selectedNew) {
                 let selected = [...this.state.selected]
                 selected[index] = selectedNew
+                let selectedValues = this.getSelectedValues(this.props.columns, selected)
                 this.setState({
                     ...this.state,
                     selected,
-                    title: this.getTitle(this.props.columns, selected, false),
-                    staticText: this.getTitle(this.props.columns, selected, true),
+                    title: this.getTitle(selectedValues),
+                    staticText: this.getStaticText(selectedValues),
                 })
+                this._selectedNew = true
             }
         }
     }
@@ -146,10 +164,19 @@ export default class UltraSelect extends Component {
         let index = this.findIScrollIndex(instance)
         let elem = this.refs[`elem${index}`]
         if (elem) {
+            if (this._selectedNew) {
+                this._selectedNew = false
+                let selectedValues = this.getSelectedValues(this.props.columns, this.state.selected)
+                if (this.props.onDidSelect) {
+                    this.props.onDidSelect(selectedValues)
+                }
+            }
+
             // incase instance bounce back on top/bottom
             if (instance.y >= 0) return
             let maxOffset = this.props.rowsVisible * elem.clientHeight - instance.scrollerHeight
             if (instance.y <= maxOffset) return
+
 
             instance.scrollTo(0, - (this.state.selected[index] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 100)
         }
@@ -215,7 +242,7 @@ export default class UltraSelect extends Component {
                             {
                                 elem.list.map((e, i) =>
                                     <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={`elem${i}`}
-                                        style={{height: rowHeight, lineHeight: rowHeight}}>{e}</div>)
+                                        style={{height: rowHeight, lineHeight: rowHeight}}>{e.value}</div>)
                             }
                         </IScroll></td>)
                     }
