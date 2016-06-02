@@ -43,10 +43,10 @@ function _pushEmptyElements(props) {
 export default class UltraSelect extends Component {
     static propTypes = {
         columns: PropTypes.arrayOf(PropTypes.shape({
-            list: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.shape({
+            list: PropTypes.arrayOf(PropTypes.shape({
                 key: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
                 value: PropTypes.node.isRequired,
-            })), PropTypes.func]).isRequired,
+            })).isRequired,
             defaultIndex: PropTypes.number,
         })).isRequired,
         rowsVisible: positiveOddPropType,
@@ -168,7 +168,7 @@ export default class UltraSelect extends Component {
                 })
                 this._selectedNew = true
                 if (this.props.onSelect) {
-                    this.props.onSelect(selectedValues)
+                    this.props.onSelect(index, selectedValues[index])
                 }
             }
         }
@@ -182,7 +182,7 @@ export default class UltraSelect extends Component {
                 this._selectedNew = false
                 let selectedValues = this.getSelectedValues(this.props.columns, this.state.selected)
                 if (this.props.onDidSelect) {
-                    this.props.onDidSelect(selectedValues)
+                    this.props.onDidSelect(index, selectedValues[index])
                 }
             }
 
@@ -190,7 +190,6 @@ export default class UltraSelect extends Component {
             if (instance.y >= 0) return
             let maxOffset = this.props.rowsVisible * elem.clientHeight - instance.scrollerHeight
             if (instance.y <= maxOffset) return
-
 
             instance.scrollTo(0, - (this.state.selected[index] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 100)
         }
@@ -201,7 +200,14 @@ export default class UltraSelect extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        _pushEmptyElements(nextProps)
+        let selected = _pushEmptyElements(nextProps)
+        let selectedValues = this.getSelectedValues(nextProps.columns, selected)
+        this.setState({
+            ...this.state,
+            selected,
+            title: this.getTitle(selectedValues),
+            staticText: this.getStaticText(selectedValues),
+        })
         this._receiveNewProps = true
     }
 

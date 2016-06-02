@@ -79,8 +79,11 @@ class Example extends Component {
         }
         return <div>
                 <div onClick={this.onClick.bind(this)}>Hello world!</div>
-                click <UltraSelect ref="ultra" columns={columns} onDidSelect={e => console.log("did select", e)} confirmButton="确定"
-                                   getStaticText={concatArrStrings} backdrop={false} onSelect={this.onSelect.bind(this)}></UltraSelect> to select
+                click <UltraSelect ref="ultra" columns={columns}
+                                   onSelect={(e, v) => console.log("select", e, v)}
+                                   onDidSelect={(e, v) => console.log("did select", e, v)}
+                                   confirmButton="确定"
+                                   getStaticText={concatArrStrings} backdrop={false}></UltraSelect> to select
             </div>
     }
 }
