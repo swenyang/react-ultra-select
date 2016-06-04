@@ -56,7 +56,6 @@ export default class UltraSelect extends Component {
         getTitle: PropTypes.func,
         getStaticText: PropTypes.func,
         confirmButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-        externalStaticTextClass: PropTypes.string,
         onDidSelect: PropTypes.func,
         onSelect: PropTypes.func,
     }
@@ -252,7 +251,7 @@ export default class UltraSelect extends Component {
     }
 
     renderStatic() {
-        return <div className={`react-ultra-selector-static${this.props.externalStaticTextClass ? this.props.externalStaticTextClass : ''}`} onClick={this.onToggle}>{this.state.staticText}</div>
+        return <div className={'react-ultra-selector-static'} onClick={this.onToggle}>{this.state.staticText}</div>
     }
 
     render() {

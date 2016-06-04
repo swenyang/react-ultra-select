@@ -38,6 +38,16 @@ class Example extends Component {
     }
 
     render() {
+        // basic
+
+        // multi rows
+
+        // dynamic changes
+
+        // customizing visible rows and row-height
+
+        // customizing text and titles
+
         var columns = [
             {
                 list: [

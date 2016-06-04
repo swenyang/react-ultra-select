@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rm -rf dist&&webpack --config webpack.config.js --progress --colors",
     "prepublish": "npm run build",
-    "examples": "webpack-dev-server --content-base examples/ --config examples/webpack.config.js --progress --colors --hot --inline"
+    "examples": "webpack-dev-server --content-base examples/ --config examples/webpack.config.js --progress --colors --hot --inline",
+    "build-demo": "rm -rf demo&&export NODE_ENV=production&&webpack --config examples/webpack.config.prod.js --progress --colors"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "css-loader": "^0.23.1",
+    "html-webpack-plugin": "^2.19.0",
     "iscroll": "^5.2.0",
     "iscroll-react": "^1.0.3",
     "less": "^2.7.1",
