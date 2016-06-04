@@ -250,7 +250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }));
 	                    this._selectedNew = true;
 	                    if (this.props.onSelect) {
-	                        this.props.onSelect(selectedValues);
+	                        this.props.onSelect(index, selectedValues[index]);
 	                    }
 	                }
 	            }
@@ -265,7 +265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    this._selectedNew = false;
 	                    var selectedValues = this.getSelectedValues(this.props.columns, this.state.selected);
 	                    if (this.props.onDidSelect) {
-	                        this.props.onDidSelect(selectedValues);
+	                        this.props.onDidSelect(index, selectedValues[index]);
 	                    }
 	                }
 
@@ -285,7 +285,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
-	            _pushEmptyElements(nextProps);
+	            var selected = _pushEmptyElements(nextProps);
+	            var selectedValues = this.getSelectedValues(nextProps.columns, selected);
+	            this.setState(_extends({}, this.state, {
+	                selected: selected,
+	                title: this.getTitle(selectedValues),
+	                staticText: this.getStaticText(selectedValues)
+	            }));
 	            this._receiveNewProps = true;
 	        }
 	    }, {
@@ -314,7 +320,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'getElemClass',
 	        value: function getElemClass(elemIndex, columnIndex) {
-	            if (elemIndex === this.state.selected[columnIndex]) return 'elem-level-1';else if (Math.abs(elemIndex - this.state.selected[columnIndex]) === 1) return 'elem-level-2';else if (Math.abs(elemIndex - this.state.selected[columnIndex]) === 2) return 'elem-level-3';else return 'elem-level-4';
+	            var distance = Math.abs(elemIndex - this.state.selected[columnIndex]);
+	            switch (distance) {
+	                case 0:
+	                    return 'elem-level-1';
+	                case 1:
+	                    return 'elem-level-2';
+	                case 2:
+	                    return 'elem-level-3';
+	                default:
+	                    return 'elem-level-4';
+	            }
 	        }
 	    }, {
 	        key: 'onToggle',
@@ -329,7 +345,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function renderStatic() {
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'react-ultra-selector-static' + (this.props.externalStaticTextClass ? this.props.externalStaticTextClass : ''), onClick: this.onToggle },
+	                { className: 'react-ultra-selector-static', onClick: this.onToggle },
 	                this.state.staticText
 	            );
 	        }
@@ -418,10 +434,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	UltraSelect.propTypes = {
 	    columns: _react.PropTypes.arrayOf(_react.PropTypes.shape({
-	        list: _react.PropTypes.oneOfType([_react.PropTypes.arrayOf(_react.PropTypes.shape({
+	        list: _react.PropTypes.arrayOf(_react.PropTypes.shape({
 	            key: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]).isRequired,
 	            value: _react.PropTypes.node.isRequired
-	        })), _react.PropTypes.func]).isRequired,
+	        })).isRequired,
 	        defaultIndex: _react.PropTypes.number
 	    })).isRequired,
 	    rowsVisible: positiveOddPropType,
@@ -431,12 +447,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    getTitle: _react.PropTypes.func,
 	    getStaticText: _react.PropTypes.func,
 	    confirmButton: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.node]),
-	    externalStaticTextClass: _react.PropTypes.string,
 	    onDidSelect: _react.PropTypes.func,
 	    onSelect: _react.PropTypes.func
 	};
 	UltraSelect.defaultProps = {
-	    rowsVisible: 5,
+	    rowsVisible: 7,
 	    rowHeight: 25,
 	    rowHeightUnit: 'px',
 	    backdrop: true,
@@ -503,7 +518,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ccc;\n  padding: 5px 25px 5px 10px;\n  display: inline-block;\n  background-color: #eee;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #ccc;\n  border-style: solid;\n  border-width: 0 4px 4px 0;\n  height: 8px;\n  width: 8px;\n  right: 5px;\n  bottom: 10px;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: absolute;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: absolute;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ccc;\n  padding: 5px 0;\n  display: table;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ccc;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9);\n  -ms-transform: scale(0.9);\n  -o-transform: scale(0.9);\n  transform: scale(0.9);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8);\n  -ms-transform: scale(0.8);\n  -o-transform: scale(0.8);\n  transform: scale(0.8);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7);\n  -ms-transform: scale(0.7);\n  -o-transform: scale(0.7);\n  transform: scale(0.7);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ccc;\n  padding: 5px 25px 5px 10px;\n  display: inline-block;\n  background-color: #eee;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #ccc;\n  border-style: solid;\n  border-width: 0 4px 4px 0;\n  height: 8px;\n  width: 8px;\n  right: 5px;\n  bottom: 10px;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: absolute;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 1;\n}\n.react-ultra-selector .caption {\n  position: absolute;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ccc;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n  z-index: 2;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ccc;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n  z-index: 2;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n", ""]);
 
 	// exports
 
