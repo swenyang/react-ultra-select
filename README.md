@@ -1,32 +1,32 @@
 # React Ultra Select
-A highly extensible component for React, good substitution for HTML 'select' element.
+A highly extensible component for React, good substitution for HTML 'select' element on mobile platforms.
 
-Basically React Ultra Select works like the 'select' and 'option' in HTML, however, it accepts any group of data and provides event callbacks for implementing sophisticated features. Very handy.
+Basically React Ultra Select works like the 'select' and 'option' of INPUT element in HTML, however, it accepts groups of data and provides event callbacks for implementing more powerful features. Very handy.
 
 ## Features
-- Mobile device oriented
+- **Mobile device oriented**
 
-	Designed for mobile devices. You can use it on desktop browsers, but the options showing up at the bottom might not give you best experience.
+	Designed for mobile platforms. You can use it on desktop browsers, but the options showing up at the bottom might not give you best experience.
 
-- iOS like
+- **iOS like**
 
-	Totally iOS like, except the filters and the loop.
+	Totally iOS like, except the filters and the loop(haven't found a solution yet).
 
-- Dynamic
+- **Dynamic**
 
-	You can pass N groups of data to React Ultra Select. It will handle data automatically and divide into N columns respectively.
+	You can pass `N` groups of data to React Ultra Select. It will handle data automatically and divide into `N` columns respectively.
 
-	Also, you can customize the number visible rows and the height of each row.
+	Also, you can customize the number visible rows and the height of each row, pass images or any React node as options, etc.
 
-- Extensible
+- **Extensible**
 
-	Each time the React Ultra Select selects a group of value, it will emit an `onSelect` event. Each time it stops scrolling, it will emit an `onDidSelect` event. These events will be very useful for make more powerful selections.
+	Every time the React Ultra Select selects a group of values, it will emit an `onSelect` event. Every time it stops scrolling, it will emit an `onDidSelect` event. These events will be very useful for make more powerful components.
 
 	For example, I write a [React Date Picker][2] based on this component. It's much more complicated.
 
 # How to use
 
-This component relies on some libraries.
+This component relies on some libraries, import them into your project first.
 
 ```
 npm i react --save
@@ -82,7 +82,7 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td><b>Required</b></td>
             <td><b>Type</b></td>
             <td><b>Description</b></td>
-            <td><b>Example</b></td>
+            <td><b>Example Value</b></td>
         </tr>
     </thead>
     <tbody>
@@ -91,7 +91,7 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td></td>
             <td>Yes</td>
             <td>Array</td>
-            <td>Each element contains one selection list and default index</td>
+            <td>Each element contains one selection list and its default index</td>
             <td>```[{
                     list: [{key: 1, value: 1}],
                     defaultIndex: 0,
@@ -103,7 +103,7 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td>Yes</td>
             <td>Array</td>
             <td>An array of options</td>
-            <td></td>
+            <td>`[{key: 1, value: 1}]`</td>
         </tr>
         <tr>
             <td></td>
@@ -111,14 +111,14 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td>Default to `0`</td>
             <td>Number</td>
             <td>Default index for selected element, starting from 0</td>
-            <td></td>
+            <td>`0`</td>
         </tr>
         <tr>
             <td>`rowsVisible`</td>
             <td></td>
             <td>Default to `7`</td>
             <td>Odd Number</td>
-            <td>Visible selections at one time</td>
+            <td>Visible rows at one time</td>
             <td>`3`, `5`, `7`, `9` etc.</td>
         </tr>
         <tr>
@@ -192,7 +192,11 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
 
 - `UltraSelect.selectedValues`
 
-Get the current array of selected values, each element contains a `key` and a `value`.
+    Get the current array of selected values, each element contains a `key` and a `value`.
+
+    ```js
+    this.refs.ultraSelect.selectedValues
+    ```
 
 # Examples
 - Online
@@ -206,11 +210,12 @@ Get the current array of selected values, each element contains a `key` and a `v
 # TODO
 - Removing iscroll-probe
 
-	React Ultra Select currently relies on [React IScroll][1] and iscroll-probe, it's a bit too heavy. Should find a smaller solution for calculating selected indecies.
+	React Ultra Select currently relies on [React IScroll][1] and [iscroll-probe][3], it's a bit too heavy. Should find a smaller solution for calculating selected indecies.
 
 - Transitions
 
-	Add some smooth transitions for backdrop and columns showing up.
+	Add some smooth transitions for backdrop and columns showing up and hiding.
 
 [1]: https://github.com/swenyang/react-iscroll
 [2]: https://github.com/swenyang/react-date-picker
+[3]: http://iscrolljs.com/
