@@ -34,7 +34,11 @@ module.exports = {
             {
                 test: /\.less$/,
                 loader: "style!css!less"
-            }
+            },
+            {
+                test: /\.(gif|png|PNG|jpe?g|svg)$/,
+                loader: "file-loader?name=images/[name].[hash].[ext]"
+            },
         ]
     }
 }

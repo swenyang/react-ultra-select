@@ -6,19 +6,6 @@ import UltraSelect from '../src/UltraSelect'
 
 import "./Example.less"
 
-function concatArrStrings(selectedValues) {
-    let ret = <h1>you</h1>
-    for (let i = 0, l = selectedValues.length; i < l; i++) {
-        ret += selectedValues[i].value
-    }
-    //return <div>{ret}</div>
-    return <div>
-        {
-            selectedValues.map((e, i) => <span key={i}>{e.value}</span>)
-        }
-    </div>
-}
-
 class Example extends Component {
     constructor(props) {
         super(props)
@@ -27,73 +14,132 @@ class Example extends Component {
         }
     }
 
-    onSelect() {
-        //console.log(this.refs.selectedValues)
-    }
-
-    onClick() {
+    onClick(e) {
+        e.preventDefault()
         this.setState({
             serial: this.state.serial+1
         })
     }
 
+    getTitle(selectedValues) {
+        return <span>{selectedValues[0].value} Hello, I'm <b>{selectedValues[0].key}</b></span>
+    }
+
+    getStaticText(selectedValues) {
+        return <div>Your favorite is <b>{selectedValues[0].key}</b></div>
+    }
+
+    onDidSelect(index, selectedValue) {
+        console.log(`You have chosen ${selectedValue.key}, nice choice!`)
+    }
+
     render() {
         // basic
+        var basic = [
+            {
+                list: [
+                    {key: 0, value: 'William Shakespeare'},
+                    {key: 1, value: 'Henry Miller'},
+                    {key: 2, value: 'Ernest Hemingway'},
+                    {key: 3, value: 'Charles Dickens'},
+                    {key: 4, value: 'Jane Austen'},
+                    {key: 5, value: 'George Orwell'},
+                    {key: 6, value: 'Mark Twain'},
+                    {key: 7, value: 'Miguel de Cervantes Saavedra'},
+                    {key: 8, value: 'Emily Jane Brontë'},
+                    {key: 9, value: 'Franz Kafka'},
+                ]
+            }
+        ]
 
         // multi rows
-
-        // dynamic changes
-
-        // customizing visible rows and row-height
-
-        // customizing text and titles
-
-        var columns = [
+        var multiRows = [
             {
                 list: [
-                    {key: 2011, value: 2011},
-                    {key: 2012, value: 2012},
-                    {key: 2013, value: 2013},
-                    {key: 2014, value: 2014},
-                    {key: 2015, value: 2015},
-                    {key: 2016, value: 2016},
-                    {key: 2017, value: 2017},
-                    {key: 2018, value: 2018},
-                    {key: 2019, value: 2019},
-                    {key: 2020, value: 2020},
-                    {key: 2021, value: 2021},
-                    {key: 2022, value: 2022},
-                    {key: 2023, value: 2023},
+                    {key: 1, value: 'U.S.'},
+                    {key: 2, value: 'Canada'},
+                    {key: 3, value: 'Mexico'},
+                    {key: 4, value: 'China'},
+                    {key: 5, value: 'Japan'},
+                    {key: 6, value: 'Korean'},
+                    {key: 7, value: 'British'},
+                    {key: 8, value: 'Germany'},
+                    {key: 9, value: 'France'},
+                    {key: 10, value: 'Italy'},
+                    {key: 11, value: 'Brazil'},
                 ],
-                defaultIndex: 3
+                defaultIndex: 2
             },
             {
                 list: [
-                    {key: 20, value: '20'},
-                    {key: 30, value: '30'},
-                    {key: 40, value: '40'},
+                    {key: 0, value: 'Male'},
+                    {key: 1, value: 'Female'},
                 ],
-                defaultIndex: 3
+                defaultIndex: 1
             },
             {
                 list: [
-                    {key: 'a', value: <span style={{backgroundColor: '#f00'}}>a</span>},
-                    {key: 'b', value: <span style={{backgroundColor: '#00f'}}>b</span>},
+                    {key: 0, value: 'below 10'},
+                    {key: 10, value: '10 to 20'},
+                    {key: 20, value: '20 to 29'},
+                    {key: 30, value: '30 to 39'},
+                    {key: 40, value: '40 to 49'},
+                    {key: 50, value: '50 to 59'},
+                    {key: 60, value: '60 to 69'},
+                    {key: 70, value: '70 to 79'},
+                    {key: 80, value: 'over 80'},
                 ],
+                defaultIndex: 3
             },
         ]
-        for (let i = 0; i < this.state.serial; i++) {
-            columns[2].list.push({
-                key: i, value: i
+
+        // dynamic changes
+        var dynamic = [
+            {
+                list: [
+                    {key: 0, value: `I'm option 0`}
+                ]
+            }
+        ]
+        for (let i = 1; i <= this.state.serial; i++) {
+            dynamic[0].list.push({
+                key: i, value: `I'm option ${i}`
             })
         }
-        return <div>
-                <div onClick={this.onClick.bind(this)}>Hello world!</div>
-                click <UltraSelect ref="ultra" columns={columns}
-                                   onSelect={(e, v) => console.log("select", e, v)}
-                                   onDidSelect={(e, v) => console.log("did select", e, v)}
-                                   confirmButton="确定"
-                                   getStaticText={concatArrStrings} backdrop={false}></UltraSelect> to select
+        dynamic[0].defaultIndex = dynamic[0].list.length - 1
+
+        // customizing visible rows and row-height
+        // customizing text and titles
+        var customize = [
+            {
+                list: [
+                    {key: 'Cartman', value: <img src={require('./images/cartman.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Stan', value: <img src={require('./images/stan.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Kyle', value: <img src={require('./images/kyle.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Kenny', value: <img src={require('./images/kenny.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Butters', value: <img src={require('./images/butters.png')} className="avatar" alt="avatar"/>},
+                    {key: 'Wendy', value: <img src={require('./images/wendy.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Shelley', value: <img src={require('./images/shelley.jpg')} className="avatar" alt="avatar"/>},
+                    {key: 'Randy', value: <img src={require('./images/randy.png')} className="avatar" alt="avatar"/>},
+                    {key: 'Chef', value: <img src={require('./images/chef.png')} className="avatar" alt="avatar"/>},
+                    {key: 'Jimbo', value: <img src={require('./images/jimbo.jpg')} className="avatar" alt="avatar"/>},
+                ],
+                defaultIndex: 3
+            }
+        ]
+
+        return <div id="example">
+                <h2 id="header">React Ultra Selection Examples</h2>
+                <div className="selection"><b>Basic selection </b><UltraSelect columns={basic}></UltraSelect></div>
+                <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
+                <div className="selection"><b>Dynamic selection </b><div>
+                    <span>Click <a href="#" onClick={this.onClick.bind(this)}>here</a> to add a row in selection </span>
+                    <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>
+                </div>
+                <div className="selection"><b>Customizing </b>
+                    <UltraSelect columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect}
+                                 confirmButton="South Park!" getTitle={this.getTitle} getStaticText={this.getStaticText}></UltraSelect>
+                </div>
             </div>
     }
 }
