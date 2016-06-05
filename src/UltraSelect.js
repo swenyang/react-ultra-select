@@ -190,7 +190,7 @@ export default class UltraSelect extends Component {
             let maxOffset = this.props.rowsVisible * elem.clientHeight - instance.scrollerHeight
             if (instance.y <= maxOffset) return
 
-            instance.scrollTo(0, - (this.state.selected[index] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 100)
+            instance.scrollTo(0, - (this.state.selected[index] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 0)
         }
     }
 
@@ -275,7 +275,7 @@ export default class UltraSelect extends Component {
                     <table><tbody><tr>
                     {
                     this.props.columns.map((elem, index) =>
-                        <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:2, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
+                        <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:3, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
                             {
                                 elem.list.map((e, i) =>
                                     <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={`elem${i}`}
