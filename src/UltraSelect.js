@@ -2,6 +2,7 @@ import React, { Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
 import IScroll from 'iscroll-react'
 import iScroll from 'iscroll/build/iscroll-probe'
+import Portal from './Portal'
 
 import './UltraSelect.less'
 
@@ -265,6 +266,7 @@ export default class UltraSelect extends Component {
 
         return <span>
             {this.renderStatic()}
+            <Portal>
             <div className='react-ultra-selector'>
                 {this.props.backdrop ? <div className='backdrop' onClick={this.onToggle}></div> : null}
                 <div className='caption' style={{bottom: listHeight, height: rowHeight, lineHeight: rowHeight}}>
@@ -287,6 +289,7 @@ export default class UltraSelect extends Component {
                     <div className='separator' style={{top: separatorTop, height: rowHeight}}></div>
                 </div>
             </div>
+            </Portal>
         </span>
     }
 }

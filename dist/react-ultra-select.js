@@ -87,7 +87,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _iscrollProbe2 = _interopRequireDefault(_iscrollProbe);
 
-	__webpack_require__(6);
+	var _Portal = __webpack_require__(6);
+
+	var _Portal2 = _interopRequireDefault(_Portal);
+
+	__webpack_require__(7);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -367,57 +371,61 @@ return /******/ (function(modules) { // webpackBootstrap
 	                null,
 	                this.renderStatic(),
 	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'react-ultra-selector' },
-	                    this.props.backdrop ? _react2.default.createElement('div', { className: 'backdrop', onClick: this.onToggle }) : null,
+	                    _Portal2.default,
+	                    null,
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'caption', style: { bottom: listHeight, height: rowHeight, lineHeight: rowHeight } },
+	                        { className: 'react-ultra-selector' },
+	                        this.props.backdrop ? _react2.default.createElement('div', { className: 'backdrop', onClick: this.onToggle }) : null,
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'title' },
-	                            this.state.title
-	                        ),
-	                        _react2.default.createElement(
-	                            'a',
-	                            { className: 'confirm', href: '#', onClick: this.onToggle },
-	                            this.props.confirmButton
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'columns', style: { height: listHeight } },
-	                        _react2.default.createElement(
-	                            'table',
-	                            null,
+	                            { className: 'caption', style: { bottom: listHeight, height: rowHeight, lineHeight: rowHeight } },
 	                            _react2.default.createElement(
-	                                'tbody',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tr',
-	                                    null,
-	                                    this.props.columns.map(function (elem, index) {
-	                                        return _react2.default.createElement(
-	                                            'td',
-	                                            { key: index },
-	                                            _react2.default.createElement(
-	                                                _iscrollReact2.default,
-	                                                { ref: 'iscroll' + index, iScroll: _iscrollProbe2.default, options: { mouseWheel: true, probeType: 3, bindToWrapper: true }, onScroll: _this2.onScroll, onScrollEnd: _this2.onScrollEnd },
-	                                                elem.list.map(function (e, i) {
-	                                                    return _react2.default.createElement(
-	                                                        'div',
-	                                                        { className: 'elem ' + _this2.getElemClass(i, index), key: i, ref: 'elem' + i,
-	                                                            style: { height: rowHeight, lineHeight: rowHeight } },
-	                                                        e.value
-	                                                    );
-	                                                })
-	                                            )
-	                                        );
-	                                    })
-	                                )
+	                                'div',
+	                                { className: 'title' },
+	                                this.state.title
+	                            ),
+	                            _react2.default.createElement(
+	                                'a',
+	                                { className: 'confirm', href: '#', onClick: this.onToggle },
+	                                this.props.confirmButton
 	                            )
 	                        ),
-	                        _react2.default.createElement('div', { className: 'separator', style: { top: separatorTop, height: rowHeight } })
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'columns', style: { height: listHeight } },
+	                            _react2.default.createElement(
+	                                'table',
+	                                null,
+	                                _react2.default.createElement(
+	                                    'tbody',
+	                                    null,
+	                                    _react2.default.createElement(
+	                                        'tr',
+	                                        null,
+	                                        this.props.columns.map(function (elem, index) {
+	                                            return _react2.default.createElement(
+	                                                'td',
+	                                                { key: index },
+	                                                _react2.default.createElement(
+	                                                    _iscrollReact2.default,
+	                                                    { ref: 'iscroll' + index, iScroll: _iscrollProbe2.default, options: { mouseWheel: true, probeType: 3, bindToWrapper: true }, onScroll: _this2.onScroll, onScrollEnd: _this2.onScrollEnd },
+	                                                    elem.list.map(function (e, i) {
+	                                                        return _react2.default.createElement(
+	                                                            'div',
+	                                                            { className: 'elem ' + _this2.getElemClass(i, index), key: i, ref: 'elem' + i,
+	                                                                style: { height: rowHeight, lineHeight: rowHeight } },
+	                                                            e.value
+	                                                        );
+	                                                    })
+	                                                )
+	                                            );
+	                                        })
+	                                    )
+	                                )
+	                            ),
+	                            _react2.default.createElement('div', { className: 'separator', style: { top: separatorTop, height: rowHeight } })
+	                        )
 	                    )
 	                )
 	            );
@@ -487,13 +495,100 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(3);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var totalSerial = 1;
+
+	// a simple portal referenced from
+	// http://stackoverflow.com/questions/28802179/how-to-create-a-react-modalwhich-is-append-to-body-with-transitions
+
+	var Portal = function (_Component) {
+	    _inherits(Portal, _Component);
+
+	    function Portal(props) {
+	        _classCallCheck(this, Portal);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Portal).call(this, props));
+
+	        _this._serial = totalSerial++;
+	        return _this;
+	    }
+
+	    _createClass(Portal, [{
+	        key: 'render',
+	        value: function render() {
+	            return null;
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var id = this.props.portalId || 'portal' + this._serial;
+	            var p = document.getElementById(id);
+	            if (!p) {
+	                var p = document.createElement('div');
+	                p.id = id;
+	                document.body.appendChild(p);
+	            }
+	            this._portalElement = p;
+	            this.componentDidUpdate();
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            document.body.removeChild(this._portalElement);
+	        }
+	    }, {
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            _reactDom2.default.render(_react2.default.createElement(
+	                'div',
+	                this.props,
+	                this.props.children
+	            ), this._portalElement);
+	        }
+	    }]);
+
+	    return Portal;
+	}(_react.Component);
+
+	Portal.propTypes = {
+	    portalId: _react.PropTypes.string
+	};
+	exports.default = Portal;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(7);
+	var content = __webpack_require__(8);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(9)(content, {});
+	var update = __webpack_require__(10)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -510,21 +605,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(8)();
+	exports = module.exports = __webpack_require__(9)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 22px 5px 10px;\n  display: inline-block;\n  background-color: #fff;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 8px;\n  width: 8px;\n  right: 6px;\n  bottom: 11px;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 1;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n  z-index: 2;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n  z-index: 2;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  background-color: #fff;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	/*
@@ -580,7 +675,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
