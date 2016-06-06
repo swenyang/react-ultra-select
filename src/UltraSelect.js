@@ -122,6 +122,7 @@ export default class UltraSelect extends Component {
     }
 
     calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
+        // -1, 36, 7, 25, 172
         let start = Math.floor(visibleCells/2)
         let end = numCells - Math.ceil(visibleCells/2)
 
@@ -157,6 +158,7 @@ export default class UltraSelect extends Component {
             let selectedBefore = this.state.selected[index]
             let selectedNew = this.calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
             if (selectedBefore !== selectedNew) {
+                //console.log("select new index", selectedNew, selectedBefore)
                 let selected = [...this.state.selected]
                 selected[index] = selectedNew
                 let selectedValues = this.getSelectedValues(this.props.columns, selected)
@@ -208,20 +210,19 @@ export default class UltraSelect extends Component {
             title: this.getTitle(selectedValues),
             staticText: this.getStaticText(selectedValues),
         })
-        this._receiveNewProps = true
     }
 
     componentDidUpdate() {
-        this.scrollToSelected()
-        if (this._receiveNewProps) {
-            this._receiveNewProps = false
+        // use setTimeout(func, 0) to fix async data bugs
+        setTimeout(() => {
             for (var i = 0, l = this.props.columns.length; i < l; i++) {
                 var iscroll = this.refs[`iscroll${i}`]
                 if (iscroll) {
                     iscroll.updateIScroll()
                 }
             }
-        }
+            this.scrollToSelected()
+        }, 0)
     }
 
     scrollToSelected() {

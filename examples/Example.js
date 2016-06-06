@@ -9,8 +9,17 @@ import "./Example.less"
 class Example extends Component {
     constructor(props) {
         super(props)
+        this.onAsync = this.onAsync.bind(this)
         this.state = {
-            serial: 1
+            serial: 1,
+            repo: 'apple/swift',
+            stargazers: {}
+        }
+    }
+
+    componentWillMount() {
+        if (!this.state.stargazers[this.state.repo]) {
+            this.fetchStargazers(this.state.repo)
         }
     }
 
@@ -31,6 +40,39 @@ class Example extends Component {
 
     onDidSelect(index, selectedValue) {
         console.log(`You have chosen ${selectedValue.key}, nice choice!`)
+    }
+
+    onAsync(index, selectedValue) {
+        if (index === 0) {
+            this.setState({
+                ...this.state,
+                repo: selectedValue.key,
+            })
+            if (!this.state.stargazers[selectedValue.key]) {
+                this.fetchStargazers(selectedValue.key)
+            }
+        }
+    }
+
+    fetchStargazers(repo) {
+        fetch(`https://api.github.com/repos/${repo}/stargazers?page=1`)
+            .then(response => response.json())
+            .then(json => {
+                this.setState({
+                    ...this.state,
+                    stargazers: {
+                        ...this.state.stargazers,
+                        [repo]: json
+                    },
+                })
+            }).catch(error => {
+            this.setState({
+                stargazers: {
+                    ...this.state.stargazers,
+                    [repo]: []
+                },
+            })
+        })
     }
 
     render() {
@@ -128,6 +170,31 @@ class Example extends Component {
             }
         ]
 
+        // async
+        var asynColumn = [
+            {
+                list: [
+                    {key: 'apple/swift', value: 'Swift'},
+                    {key: 'golang/go', value: 'Go'},
+                    {key: 'ruby/ruby', value: 'Ruby'},
+                    {key: 'rust-lang/rust', value: 'Rust'},
+                    {key: 'jashkenas/coffeescript', value: 'CoffeeScript'},
+                ],
+            }
+        ]
+        asynColumn[0].defaultIndex = asynColumn[0].list.findIndex(e => e.key === this.state.repo)
+        let gazers = this.state.stargazers[this.state.repo] || []
+        let list = []
+        for (let i = 0, l = gazers.length; i < l; i++) {
+            list.push({
+                key: gazers[i].login,
+                value: gazers[i].login,
+            })
+        }
+        asynColumn.push({
+            list
+        })
+
         return <div id="example">
                 <h2 id="header">React Ultra Selection Examples</h2>
                 <div className="selection"><b>Basic selection </b><UltraSelect columns={basic}></UltraSelect></div>
@@ -140,7 +207,9 @@ class Example extends Component {
                     <UltraSelect columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect}
                                  confirmButton="South Park!" getTitle={this.getTitle} getStaticText={this.getStaticText}></UltraSelect>
                 </div>
-            </div>
+                <div className="selection"><b>Load async data: </b>
+                    <UltraSelect columns={asynColumn} onDidSelect={this.onAsync} getTitle={()=>'Language - Stargazers'}></UltraSelect></div>
+        </div>
     }
 }
 

@@ -211,6 +211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'calculateSelected',
 	        value: function calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
+	            // -1, 36, 7, 25, 172
 	            var start = Math.floor(visibleCells / 2);
 	            var end = numCells - Math.ceil(visibleCells / 2);
 
@@ -244,6 +245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var selectedBefore = this.state.selected[index];
 	                var selectedNew = this.calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight);
 	                if (selectedBefore !== selectedNew) {
+	                    //console.log("select new index", selectedNew, selectedBefore)
 	                    var selected = [].concat(_toConsumableArray(this.state.selected));
 	                    selected[index] = selectedNew;
 	                    var selectedValues = this.getSelectedValues(this.props.columns, selected);
@@ -296,21 +298,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	                title: this.getTitle(selectedValues),
 	                staticText: this.getStaticText(selectedValues)
 	            }));
-	            this._receiveNewProps = true;
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
-	            this.scrollToSelected();
-	            if (this._receiveNewProps) {
-	                this._receiveNewProps = false;
-	                for (var i = 0, l = this.props.columns.length; i < l; i++) {
-	                    var iscroll = this.refs['iscroll' + i];
+	            var _this2 = this;
+
+	            // use setTimeout(func, 0) to fix async data bugs
+	            setTimeout(function () {
+	                for (var i = 0, l = _this2.props.columns.length; i < l; i++) {
+	                    var iscroll = _this2.refs['iscroll' + i];
 	                    if (iscroll) {
 	                        iscroll.updateIScroll();
 	                    }
 	                }
-	            }
+	                _this2.scrollToSelected();
+	            }, 0);
 	        }
 	    }, {
 	        key: 'scrollToSelected',
@@ -356,7 +359,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 
 	            if (!this.state.open) {
 	                return this.renderStatic();
@@ -409,11 +412,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                                { key: index },
 	                                                _react2.default.createElement(
 	                                                    _iscrollReact2.default,
-	                                                    { ref: 'iscroll' + index, iScroll: _iscrollProbe2.default, options: { mouseWheel: true, probeType: 3, bindToWrapper: true }, onScroll: _this2.onScroll, onScrollEnd: _this2.onScrollEnd },
+	                                                    { ref: 'iscroll' + index, iScroll: _iscrollProbe2.default, options: { mouseWheel: true, probeType: 3, bindToWrapper: true }, onScroll: _this3.onScroll, onScrollEnd: _this3.onScrollEnd },
 	                                                    elem.list.map(function (e, i) {
 	                                                        return _react2.default.createElement(
 	                                                            'div',
-	                                                            { className: 'elem ' + _this2.getElemClass(i, index), key: i, ref: 'elem' + i,
+	                                                            { className: 'elem ' + _this3.getElemClass(i, index), key: i, ref: 'elem' + i,
 	                                                                style: { height: rowHeight, lineHeight: rowHeight } },
 	                                                            e.value
 	                                                        );
@@ -613,7 +616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  background-color: #fff;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  background-color: #fff;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 
