@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-
+import 'whatwg-fetch'
 import UltraSelect from '../src/UltraSelect'
 //import UltraSelect from '../dist/react-ultra-select'
 

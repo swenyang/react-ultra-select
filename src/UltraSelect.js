@@ -122,7 +122,6 @@ export default class UltraSelect extends Component {
     }
 
     calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
-        // -1, 36, 7, 25, 172
         let start = Math.floor(visibleCells/2)
         let end = numCells - Math.ceil(visibleCells/2)
 

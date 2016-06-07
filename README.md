@@ -1,3 +1,7 @@
+# NEW VERSION: 1.0.4
+
+Supports loading asynchronous data.
+
 # React Ultra Select
 A highly extensible component for React, good substitution for HTML 'select' element on mobile platforms.
 
