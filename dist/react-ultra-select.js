@@ -149,7 +149,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UltraSelect).call(this, props));
 
 	        _this._selectedNew = false;
-	        _this._receiveNewProps = false;
 
 	        _this.onScroll = _this.onScroll.bind(_this);
 	        _this.onScrollEnd = _this.onScrollEnd.bind(_this);
@@ -211,7 +210,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'calculateSelected',
 	        value: function calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
-	            // -1, 36, 7, 25, 172
 	            var start = Math.floor(visibleCells / 2);
 	            var end = numCells - Math.ceil(visibleCells / 2);
 
@@ -343,6 +341,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'onToggle',
 	        value: function onToggle(e) {
 	            e.preventDefault();
+	            if (!this.state.open && this.props.disabled) {
+	                return;
+	            }
 	            this.setState(_extends({}, this.state, {
 	                open: !this.state.open
 	            }));
@@ -352,7 +353,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function renderStatic() {
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'react-ultra-selector-static', onClick: this.onToggle },
+	                { className: 'react-ultra-selector-static', onClick: this.onToggle, style: { background: this.props.disabled ? '#eee' : '#fff' } },
 	                this.state.staticText
 	            );
 	        }
@@ -459,14 +460,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    getStaticText: _react.PropTypes.func,
 	    confirmButton: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.node]),
 	    onDidSelect: _react.PropTypes.func,
-	    onSelect: _react.PropTypes.func
+	    onSelect: _react.PropTypes.func,
+	    disabled: _react.PropTypes.bool
 	};
 	UltraSelect.defaultProps = {
 	    rowsVisible: 7,
 	    rowHeight: 25,
 	    rowHeightUnit: 'px',
 	    backdrop: true,
-	    confirmButton: 'CONFIRM'
+	    confirmButton: 'CONFIRM',
+	    disabled: false
 	};
 	exports.default = UltraSelect;
 
@@ -616,7 +619,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  background-color: #fff;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 

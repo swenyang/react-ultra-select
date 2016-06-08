@@ -1,6 +1,6 @@
 {
   "name": "react-ultra-select",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A compatible, highly extensible 'html select' for React, with iOS-like appearance",
   "main": "dist/react-ultra-select.js",
   "scripts": {

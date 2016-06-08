@@ -1,11 +1,9 @@
-# NEW VERSION: 1.0.4
-
-Supports loading asynchronous data.
-
 # React Ultra Select
 A highly extensible component for React, good substitution for HTML 'select' element on mobile platforms.
 
 Basically React Ultra Select works like the 'select' and 'option' of INPUT element in HTML, however, it accepts groups of data and provides event callbacks for implementing more powerful features. Very handy.
+
+**Still testing, will publish 2.0.0 when stable.**
 
 ## Features
 - **Mobile device oriented**
@@ -188,6 +186,14 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td>Function</td>
             <td>Will be called with the value of the selecting column when selection is made</td>
             <td>`(selectedValue) => console.log(selectValue)`</td>
+        </tr>
+        <tr>
+            <td>`disabled`</td>
+            <td></td>
+            <td>Default to `false`</td>
+            <td>Boolean</td>
+            <td>Disable selection</td>
+            <td>`true`</td>
         </tr>
     </tbody>
 </table>

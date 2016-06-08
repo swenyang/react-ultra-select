@@ -59,6 +59,7 @@ export default class UltraSelect extends Component {
         confirmButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
         onDidSelect: PropTypes.func,
         onSelect: PropTypes.func,
+        disabled: PropTypes.bool,
     }
 
     static defaultProps = {
@@ -67,10 +68,10 @@ export default class UltraSelect extends Component {
         rowHeightUnit: 'px',
         backdrop: true,
         confirmButton: 'CONFIRM',
+        disabled: false,
     }
 
     _selectedNew = false
-    _receiveNewProps = false
 
     constructor(props) {
         let selected = _pushEmptyElements(props)
@@ -245,6 +246,9 @@ export default class UltraSelect extends Component {
 
     onToggle(e) {
         e.preventDefault()
+        if (!this.state.open && this.props.disabled) {
+            return
+        }
         this.setState({
             ...this.state,
             open: !this.state.open
@@ -252,7 +256,7 @@ export default class UltraSelect extends Component {
     }
 
     renderStatic() {
-        return <div className={'react-ultra-selector-static'} onClick={this.onToggle}>{this.state.staticText}</div>
+        return <div className={'react-ultra-selector-static'} onClick={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>{this.state.staticText}</div>
     }
 
     render() {
