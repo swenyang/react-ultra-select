@@ -1,7 +1,13 @@
 # Change Logs
 
+## Version 1.0.6
+
+- 2016-06-11
+- Export `Portal` component
+
 ## Version 1.0.5
 
+- 2016-06-08
 - Add `disabled` prop
 
 ## Version 1.0.4
