@@ -60,6 +60,7 @@ export default class UltraSelect extends Component {
         onDidSelect: PropTypes.func,
         onSelect: PropTypes.func,
         disabled: PropTypes.bool,
+        useTouchTap: PropTypes.bool,
     }
 
     static defaultProps = {
@@ -69,6 +70,7 @@ export default class UltraSelect extends Component {
         backdrop: true,
         confirmButton: 'CONFIRM',
         disabled: false,
+        useTouchTap: false,
     }
 
     _selectedNew = false
@@ -256,7 +258,25 @@ export default class UltraSelect extends Component {
     }
 
     renderStatic() {
+        if (this.props.useTouchTap) {
+            return <div className={'react-ultra-selector-static'} onTouchTap={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>{this.state.staticText}</div>
+        }
         return <div className={'react-ultra-selector-static'} onClick={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>{this.state.staticText}</div>
+    }
+
+    renderBackdrop() {
+        if (!this.props.backdrop) return null
+        if (this.props.useTouchTap) {
+            return <div className='backdrop' onTouchTap={this.onToggle}></div>
+        }
+        return <div className='backdrop' onClick={this.onToggle}></div>
+    }
+
+    renderConfirm() {
+        if (this.props.useTouchTap) {
+            return <a className='confirm' href='#' onTouchTap={this.onToggle}>{this.props.confirmButton}</a>
+        }
+        return <a className='confirm' href='#' onClick={this.onToggle}>{this.props.confirmButton}</a>
     }
 
     render() {
@@ -272,10 +292,10 @@ export default class UltraSelect extends Component {
             {this.renderStatic()}
             <MyPortal>
             <div className='react-ultra-selector'>
-                {this.props.backdrop ? <div className='backdrop' onClick={this.onToggle}></div> : null}
+                {this.renderBackdrop()}
                 <div className='caption' style={{bottom: listHeight, height: rowHeight, lineHeight: rowHeight}}>
                     <div className='title'>{this.state.title}</div>
-                    <a className='confirm' href='#' onClick={this.onToggle}>{this.props.confirmButton}</a>
+                    {this.renderConfirm()}
                 </div>
                 <div className='columns' style={{height: listHeight}}>
                     <table><tbody><tr>

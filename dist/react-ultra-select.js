@@ -352,10 +352,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'renderStatic',
 	        value: function renderStatic() {
+	            if (this.props.useTouchTap) {
+	                return _react2.default.createElement(
+	                    'div',
+	                    { className: 'react-ultra-selector-static', onTouchTap: this.onToggle, style: { background: this.props.disabled ? '#eee' : '#fff' } },
+	                    this.state.staticText
+	                );
+	            }
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'react-ultra-selector-static', onClick: this.onToggle, style: { background: this.props.disabled ? '#eee' : '#fff' } },
 	                this.state.staticText
+	            );
+	        }
+	    }, {
+	        key: 'renderBackdrop',
+	        value: function renderBackdrop() {
+	            if (!this.props.backdrop) return null;
+	            if (this.props.useTouchTap) {
+	                return _react2.default.createElement('div', { className: 'backdrop', onTouchTap: this.onToggle });
+	            }
+	            return _react2.default.createElement('div', { className: 'backdrop', onClick: this.onToggle });
+	        }
+	    }, {
+	        key: 'renderConfirm',
+	        value: function renderConfirm() {
+	            if (this.props.useTouchTap) {
+	                return _react2.default.createElement(
+	                    'a',
+	                    { className: 'confirm', href: '#', onTouchTap: this.onToggle },
+	                    this.props.confirmButton
+	                );
+	            }
+	            return _react2.default.createElement(
+	                'a',
+	                { className: 'confirm', href: '#', onClick: this.onToggle },
+	                this.props.confirmButton
 	            );
 	        }
 	    }, {
@@ -381,7 +413,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'react-ultra-selector' },
-	                        this.props.backdrop ? _react2.default.createElement('div', { className: 'backdrop', onClick: this.onToggle }) : null,
+	                        this.renderBackdrop(),
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'caption', style: { bottom: listHeight, height: rowHeight, lineHeight: rowHeight } },
@@ -390,11 +422,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                { className: 'title' },
 	                                this.state.title
 	                            ),
-	                            _react2.default.createElement(
-	                                'a',
-	                                { className: 'confirm', href: '#', onClick: this.onToggle },
-	                                this.props.confirmButton
-	                            )
+	                            this.renderConfirm()
 	                        ),
 	                        _react2.default.createElement(
 	                            'div',
@@ -462,7 +490,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    confirmButton: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.node]),
 	    onDidSelect: _react.PropTypes.func,
 	    onSelect: _react.PropTypes.func,
-	    disabled: _react.PropTypes.bool
+	    disabled: _react.PropTypes.bool,
+	    useTouchTap: _react.PropTypes.bool
 	};
 	UltraSelect.defaultProps = {
 	    rowsVisible: 7,
@@ -470,7 +499,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    rowHeightUnit: 'px',
 	    backdrop: true,
 	    confirmButton: 'CONFIRM',
-	    disabled: false
+	    disabled: false,
+	    useTouchTap: false
 	};
 	exports.default = UltraSelect;
 	var Portal = exports.Portal = _Portal2.default;

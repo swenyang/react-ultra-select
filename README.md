@@ -195,6 +195,14 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td>Disable selection</td>
             <td>`true`</td>
         </tr>
+        <tr>
+            <td>`useTouchTap`</td>
+            <td></td>
+            <td>Default to `false`</td>
+            <td>Boolean</td>
+            <td>use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
+            <td>`true`</td>
+        </tr>
     </tbody>
 </table>
 
@@ -229,3 +237,4 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
 [1]: https://github.com/swenyang/react-iscroll
 [2]: https://github.com/swenyang/react-date-picker
 [3]: http://iscrolljs.com/
+[4]: https://github.com/zilverline/react-tap-event-plugin
