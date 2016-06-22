@@ -21,24 +21,27 @@ const positiveOddPropType = (props, propName, componentName) => {
     }
 }
 
-function _pushEmptyElements(props) {
+const _pushEmptyElements = (props) => {
     let selected = []
     let numEmpty = Math.floor(props.rowsVisible / 2)
+    let columns = []
     for (let i = 0, l = props.columns.length; i < l; i++) {
         let newList = []
         for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
         newList = newList.concat(props.columns[i].list)
         for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
-        props.columns[i].list = newList
 
         let d = props.columns[i].defaultIndex || 0
         d += numEmpty
         let max = newList.length - Math.ceil(props.rowsVisible/2)
         if (d < numEmpty) d = numEmpty
         if (d > max) d = max
+        columns.push({
+            list: newList,
+        })
         selected.push(d)
     }
-    return selected
+    return [selected, columns]
 }
 
 export default class UltraSelect extends Component {
@@ -76,19 +79,20 @@ export default class UltraSelect extends Component {
     _selectedNew = false
 
     constructor(props) {
-        let selected = _pushEmptyElements(props)
+        let [selected, columns] = _pushEmptyElements(props)
 
         super(props)
         this.onScroll = this.onScroll.bind(this)
         this.onScrollEnd = this.onScrollEnd.bind(this)
         this.onToggle = this.onToggle.bind(this)
 
-        let selectedValues = this.getSelectedValues(props.columns, selected)
+        let selectedValues = this.getSelectedValues(columns, selected)
         this.state = {
             selected,
             title: this.getTitle(selectedValues),
             staticText: this.getStaticText(selectedValues),
             open: false,
+            columns,
         }
     }
 
@@ -138,7 +142,7 @@ export default class UltraSelect extends Component {
     }
 
     findIScrollIndex(instance) {
-        for (let i = 0, l = this.props.columns.length; i < l; i++) {
+        for (let i = 0, l = this.state.columns.length; i < l; i++) {
             let iScroll = this.refs[`iscroll${i}`]
             if (iScroll && iScroll.iScrollInstance === instance) {
                 return i
@@ -148,7 +152,7 @@ export default class UltraSelect extends Component {
     }
 
     get selectedValues() {
-        return this.getSelectedValues(this.props.columns, this.state.selected)
+        return this.getSelectedValues(this.state.columns, this.state.selected)
     }
 
     onScroll(instance) {
@@ -158,12 +162,12 @@ export default class UltraSelect extends Component {
         let elem = this.refs[`elem${index}`]
         if (elem) {
             let selectedBefore = this.state.selected[index]
-            let selectedNew = this.calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
+            let selectedNew = this.calculateSelected(instance.y, this.state.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
             if (selectedBefore !== selectedNew) {
                 //console.log("select new index", selectedNew, selectedBefore)
                 let selected = [...this.state.selected]
                 selected[index] = selectedNew
-                let selectedValues = this.getSelectedValues(this.props.columns, selected)
+                let selectedValues = this.getSelectedValues(this.state.columns, selected)
                 this.setState({
                     ...this.state,
                     selected,
@@ -184,7 +188,7 @@ export default class UltraSelect extends Component {
         if (elem) {
             if (this._selectedNew) {
                 this._selectedNew = false
-                let selectedValues = this.getSelectedValues(this.props.columns, this.state.selected)
+                let selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
                 if (this.props.onDidSelect) {
                     this.props.onDidSelect(index, selectedValues[index])
                 }
@@ -204,20 +208,21 @@ export default class UltraSelect extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        let selected = _pushEmptyElements(nextProps)
-        let selectedValues = this.getSelectedValues(nextProps.columns, selected)
+        let [selected, columns] = _pushEmptyElements(nextProps)
+        let selectedValues = this.getSelectedValues(columns, selected)
         this.setState({
             ...this.state,
             selected,
             title: this.getTitle(selectedValues),
             staticText: this.getStaticText(selectedValues),
+            columns,
         })
     }
 
     componentDidUpdate() {
         // use setTimeout(func, 0) to fix async data bugs
         setTimeout(() => {
-            for (var i = 0, l = this.props.columns.length; i < l; i++) {
+            for (var i = 0, l = this.state.columns.length; i < l; i++) {
                 var iscroll = this.refs[`iscroll${i}`]
                 if (iscroll) {
                     iscroll.updateIScroll()
@@ -228,7 +233,7 @@ export default class UltraSelect extends Component {
     }
 
     scrollToSelected() {
-        for (let i = 0, l = this.props.columns.length; i < l; i++) {
+        for (let i = 0, l = this.state.columns.length; i < l; i++) {
             let elem = this.refs[`elem${i}`]
             if (!elem) return
             this.refs[`iscroll${i}`].iScrollInstance.scrollTo(0, - (this.state.selected[i] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 0)
@@ -300,7 +305,7 @@ export default class UltraSelect extends Component {
                 <div className='columns' style={{height: listHeight}}>
                     <table><tbody><tr>
                     {
-                    this.props.columns.map((elem, index) =>
+                    this.state.columns.map((elem, index) =>
                         <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:3, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
                             {
                                 elem.list.map((e, i) =>

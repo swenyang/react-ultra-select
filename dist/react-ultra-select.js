@@ -70,6 +70,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(2);
@@ -117,9 +119,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-	function _pushEmptyElements(props) {
+	var _pushEmptyElements = function _pushEmptyElements(props) {
 	    var selected = [];
 	    var numEmpty = Math.floor(props.rowsVisible / 2);
+	    var columns = [];
 	    for (var i = 0, l = props.columns.length; i < l; i++) {
 	        var newList = [];
 	        for (var j = 0; j < numEmpty; j++) {
@@ -127,17 +130,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }newList = newList.concat(props.columns[i].list);
 	        for (var _j = 0; _j < numEmpty; _j++) {
 	            newList.push({ key: '', value: '' });
-	        }props.columns[i].list = newList;
-
-	        var d = props.columns[i].defaultIndex || 0;
+	        }var d = props.columns[i].defaultIndex || 0;
 	        d += numEmpty;
 	        var max = newList.length - Math.ceil(props.rowsVisible / 2);
 	        if (d < numEmpty) d = numEmpty;
 	        if (d > max) d = max;
+	        columns.push({
+	            list: newList
+	        });
 	        selected.push(d);
 	    }
-	    return selected;
-	}
+	    return [selected, columns];
+	};
 
 	var UltraSelect = function (_Component) {
 	    _inherits(UltraSelect, _Component);
@@ -145,7 +149,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function UltraSelect(props) {
 	        _classCallCheck(this, UltraSelect);
 
-	        var selected = _pushEmptyElements(props);
+	        var _pushEmptyElements2 = _pushEmptyElements(props);
+
+	        var _pushEmptyElements3 = _slicedToArray(_pushEmptyElements2, 2);
+
+	        var selected = _pushEmptyElements3[0];
+	        var columns = _pushEmptyElements3[1];
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UltraSelect).call(this, props));
 
@@ -155,12 +164,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.onScrollEnd = _this.onScrollEnd.bind(_this);
 	        _this.onToggle = _this.onToggle.bind(_this);
 
-	        var selectedValues = _this.getSelectedValues(props.columns, selected);
+	        var selectedValues = _this.getSelectedValues(columns, selected);
 	        _this.state = {
 	            selected: selected,
 	            title: _this.getTitle(selectedValues),
 	            staticText: _this.getStaticText(selectedValues),
-	            open: false
+	            open: false,
+	            columns: columns
 	        };
 	        return _this;
 	    }
@@ -225,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'findIScrollIndex',
 	        value: function findIScrollIndex(instance) {
-	            for (var i = 0, l = this.props.columns.length; i < l; i++) {
+	            for (var i = 0, l = this.state.columns.length; i < l; i++) {
 	                var _iScroll = this.refs['iscroll' + i];
 	                if (_iScroll && _iScroll.iScrollInstance === instance) {
 	                    return i;
@@ -242,12 +252,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var elem = this.refs['elem' + index];
 	            if (elem) {
 	                var selectedBefore = this.state.selected[index];
-	                var selectedNew = this.calculateSelected(instance.y, this.props.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight);
+	                var selectedNew = this.calculateSelected(instance.y, this.state.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight);
 	                if (selectedBefore !== selectedNew) {
 	                    //console.log("select new index", selectedNew, selectedBefore)
 	                    var selected = [].concat(_toConsumableArray(this.state.selected));
 	                    selected[index] = selectedNew;
-	                    var selectedValues = this.getSelectedValues(this.props.columns, selected);
+	                    var selectedValues = this.getSelectedValues(this.state.columns, selected);
 	                    this.setState(_extends({}, this.state, {
 	                        selected: selected,
 	                        title: this.getTitle(selectedValues),
@@ -268,7 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (elem) {
 	                if (this._selectedNew) {
 	                    this._selectedNew = false;
-	                    var selectedValues = this.getSelectedValues(this.props.columns, this.state.selected);
+	                    var selectedValues = this.getSelectedValues(this.state.columns, this.state.selected);
 	                    if (this.props.onDidSelect) {
 	                        this.props.onDidSelect(index, selectedValues[index]);
 	                    }
@@ -290,12 +300,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
-	            var selected = _pushEmptyElements(nextProps);
-	            var selectedValues = this.getSelectedValues(nextProps.columns, selected);
+	            var _pushEmptyElements4 = _pushEmptyElements(nextProps);
+
+	            var _pushEmptyElements5 = _slicedToArray(_pushEmptyElements4, 2);
+
+	            var selected = _pushEmptyElements5[0];
+	            var columns = _pushEmptyElements5[1];
+
+	            var selectedValues = this.getSelectedValues(columns, selected);
 	            this.setState(_extends({}, this.state, {
 	                selected: selected,
 	                title: this.getTitle(selectedValues),
-	                staticText: this.getStaticText(selectedValues)
+	                staticText: this.getStaticText(selectedValues),
+	                columns: columns
 	            }));
 	        }
 	    }, {
@@ -305,7 +322,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // use setTimeout(func, 0) to fix async data bugs
 	            setTimeout(function () {
-	                for (var i = 0, l = _this2.props.columns.length; i < l; i++) {
+	                for (var i = 0, l = _this2.state.columns.length; i < l; i++) {
 	                    var iscroll = _this2.refs['iscroll' + i];
 	                    if (iscroll) {
 	                        iscroll.updateIScroll();
@@ -317,7 +334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'scrollToSelected',
 	        value: function scrollToSelected() {
-	            for (var i = 0, l = this.props.columns.length; i < l; i++) {
+	            for (var i = 0, l = this.state.columns.length; i < l; i++) {
 	                var elem = this.refs['elem' + i];
 	                if (!elem) return;
 	                this.refs['iscroll' + i].iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0);
@@ -436,7 +453,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                    _react2.default.createElement(
 	                                        'tr',
 	                                        null,
-	                                        this.props.columns.map(function (elem, index) {
+	                                        this.state.columns.map(function (elem, index) {
 	                                            return _react2.default.createElement(
 	                                                'td',
 	                                                { key: index },
@@ -466,7 +483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'selectedValues',
 	        get: function get() {
-	            return this.getSelectedValues(this.props.columns, this.state.selected);
+	            return this.getSelectedValues(this.state.columns, this.state.selected);
 	        }
 	    }]);
 

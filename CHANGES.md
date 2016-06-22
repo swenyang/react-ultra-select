@@ -1,5 +1,10 @@
 # Change Logs
 
+## Version 1.0.8
+
+- 2016-06-22
+- use copied `columns` props instead of modifying columns props directly
+
 ## Version 1.0.7
 
 - 2016-06-22
