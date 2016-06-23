@@ -188,6 +188,22 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td>`(selectedValue) => console.log(selectValue)`</td>
         </tr>
         <tr>
+            <td>`onOpen`</td>
+            <td></td>
+            <td>No</td>
+            <td>Function</td>
+            <td>Will be called when the columns show up</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`onClose`</td>
+            <td></td>
+            <td>No</td>
+            <td>Function</td>
+            <td>Will be called when the columns hide</td>
+            <td></td>
+        </tr>
+        <tr>
             <td>`disabled`</td>
             <td></td>
             <td>Default to `false`</td>

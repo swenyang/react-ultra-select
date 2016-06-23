@@ -357,10 +357,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'onToggle',
-	        value: function onToggle(e) {
-	            e.preventDefault();
+	        value: function onToggle() {
 	            if (!this.state.open && this.props.disabled) {
 	                return;
+	            }
+	            if (!this.state.open && this.props.onOpen) {
+	                this.props.onOpen();
+	            }
+	            if (this.state.open && this.props.onClose) {
+	                this.props.onClose();
 	            }
 	            this.setState(_extends({}, this.state, {
 	                open: !this.state.open
@@ -397,13 +402,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (this.props.useTouchTap) {
 	                return _react2.default.createElement(
 	                    'a',
-	                    { className: 'confirm', href: '#', onTouchTap: this.onToggle },
+	                    { className: 'confirm', onTouchTap: this.onToggle },
 	                    this.props.confirmButton
 	                );
 	            }
 	            return _react2.default.createElement(
 	                'a',
-	                { className: 'confirm', href: '#', onClick: this.onToggle },
+	                { className: 'confirm', onClick: this.onToggle },
 	                this.props.confirmButton
 	            );
 	        }
@@ -508,7 +513,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onDidSelect: _react.PropTypes.func,
 	    onSelect: _react.PropTypes.func,
 	    disabled: _react.PropTypes.bool,
-	    useTouchTap: _react.PropTypes.bool
+	    useTouchTap: _react.PropTypes.bool,
+	    onOpen: _react.PropTypes.func,
+	    onClose: _react.PropTypes.func
 	};
 	UltraSelect.defaultProps = {
 	    rowsVisible: 7,

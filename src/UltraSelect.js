@@ -64,6 +64,8 @@ export default class UltraSelect extends Component {
         onSelect: PropTypes.func,
         disabled: PropTypes.bool,
         useTouchTap: PropTypes.bool,
+        onOpen: PropTypes.func,
+        onClose: PropTypes.func,
     }
 
     static defaultProps = {
@@ -251,10 +253,15 @@ export default class UltraSelect extends Component {
         }
     }
 
-    onToggle(e) {
-        e.preventDefault()
+    onToggle() {
         if (!this.state.open && this.props.disabled) {
             return
+        }
+        if (!this.state.open && this.props.onOpen) {
+            this.props.onOpen()
+        }
+        if (this.state.open && this.props.onClose) {
+            this.props.onClose()
         }
         this.setState({
             ...this.state,
@@ -279,9 +286,9 @@ export default class UltraSelect extends Component {
 
     renderConfirm() {
         if (this.props.useTouchTap) {
-            return <a className='confirm' href='#' onTouchTap={this.onToggle}>{this.props.confirmButton}</a>
+            return <a className='confirm' onTouchTap={this.onToggle}>{this.props.confirmButton}</a>
         }
-        return <a className='confirm' href='#' onClick={this.onToggle}>{this.props.confirmButton}</a>
+        return <a className='confirm' onClick={this.onToggle}>{this.props.confirmButton}</a>
     }
 
     render() {

@@ -1,5 +1,11 @@
 # Change Logs
 
+## Version 1.0.9
+
+- 2016-06-22
+- add `onOpen` and `onClose` events
+- fix confirm-button bug
+
 ## Version 1.0.8
 
 - 2016-06-22
