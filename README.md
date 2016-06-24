@@ -5,7 +5,7 @@ Basically React Ultra Select works like the 'select' and 'option' of INPUT eleme
 
 **Still testing, will publish 2.0.0 when stable.**
 
-## Features
+# Features
 - **Mobile device oriented**
 
 	Designed for mobile platforms. You can use it on desktop browsers, but the options showing up at the bottom might not give you best experience.
@@ -216,7 +216,15 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
             <td></td>
             <td>Default to `false`</td>
             <td>Boolean</td>
-            <td>use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
+            <td>Use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
+            <td>`true`</td>
+        </tr>
+        <tr>
+            <td>`isOpen`</td>
+            <td></td>
+            <td>Default to `null`</td>
+            <td>Boolean</td>
+            <td>Whether the colomns shows up or not</td>
             <td>`true`</td>
         </tr>
     </tbody>

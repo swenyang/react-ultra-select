@@ -66,6 +66,7 @@ export default class UltraSelect extends Component {
         useTouchTap: PropTypes.bool,
         onOpen: PropTypes.func,
         onClose: PropTypes.func,
+        isOpen: PropTypes.bool,
     }
 
     static defaultProps = {
@@ -93,7 +94,7 @@ export default class UltraSelect extends Component {
             selected,
             title: this.getTitle(selectedValues),
             staticText: this.getStaticText(selectedValues),
-            open: false,
+            open: this.props.isOpen,
             columns,
         }
     }
@@ -218,6 +219,7 @@ export default class UltraSelect extends Component {
             title: this.getTitle(selectedValues),
             staticText: this.getStaticText(selectedValues),
             columns,
+            open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen,
         })
     }
 

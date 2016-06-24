@@ -169,7 +169,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            selected: selected,
 	            title: _this.getTitle(selectedValues),
 	            staticText: _this.getStaticText(selectedValues),
-	            open: false,
+	            open: _this.props.isOpen,
 	            columns: columns
 	        };
 	        return _this;
@@ -312,7 +312,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                selected: selected,
 	                title: this.getTitle(selectedValues),
 	                staticText: this.getStaticText(selectedValues),
-	                columns: columns
+	                columns: columns,
+	                open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen
 	            }));
 	        }
 	    }, {
@@ -515,7 +516,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    disabled: _react.PropTypes.bool,
 	    useTouchTap: _react.PropTypes.bool,
 	    onOpen: _react.PropTypes.func,
-	    onClose: _react.PropTypes.func
+	    onClose: _react.PropTypes.func,
+	    isOpen: _react.PropTypes.bool
 	};
 	UltraSelect.defaultProps = {
 	    rowsVisible: 7,

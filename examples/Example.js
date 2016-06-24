@@ -13,7 +13,8 @@ class Example extends Component {
         this.state = {
             serial: 1,
             repo: 'apple/swift',
-            stargazers: {}
+            stargazers: {},
+            step: 1,
         }
     }
 
@@ -72,6 +73,18 @@ class Example extends Component {
                     [repo]: []
                 },
             })
+        })
+    }
+
+    onClose() {
+        let step = this.state.step
+        step++
+        if (step > 2) {
+            step = 1
+        }
+        this.setState({
+            ...this.state,
+            step,
         })
     }
 
@@ -199,6 +212,7 @@ class Example extends Component {
                 <h2 id="header">React Ultra Selection Examples</h2>
                 <div className="selection"><b>Basic selection </b><UltraSelect columns={basic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
+                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onClose={this.onClose.bind(this)}></UltraSelect></div>
                 <div className="selection"><b>Dynamic selection </b><div>
                     <span>Click <a href="#" onClick={this.onClick.bind(this)}>here</a> to add a row in selection </span>
                     <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>

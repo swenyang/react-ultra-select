@@ -1,10 +1,15 @@
 # Change Logs
 
+## Version 1.0.10
+
+- 2016-06-25
+- add `isOpen` prop
+
 ## Version 1.0.9
 
 - 2016-06-22
 - add `onOpen` and `onClose` events
-- fix confirm-button bug
+- fix confirm-button `href` bug
 
 ## Version 1.0.8
 
