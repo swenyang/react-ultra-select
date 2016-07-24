@@ -8,13 +8,8 @@ import './UltraSelect.less'
 
 const positiveOddPropType = (props, propName, componentName) => {
     const val = props[propName]
-    if (typeof val === 'number') {
-        if (val < 0) {
-            return new Error(`${componentName}: ${propName} should be passed a positive odd number.`)
-        }
-        else if (val % 2 === 0) {
-            return new Error(`${componentName}: ${propName} should be passed a positive odd number.`)
-        }
+    if (typeof val === 'number' && val > 0 && val % 2 !== 0) {
+        return null
     }
     else {
         return new Error(`${componentName}: ${propName} should be passed a positive odd number.`)
@@ -26,20 +21,32 @@ const _pushEmptyElements = (props) => {
     let numEmpty = Math.floor(props.rowsVisible / 2)
     let columns = []
     for (let i = 0, l = props.columns.length; i < l; i++) {
+        // push several empty elements before & after for each column
         let newList = []
-        for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
+        for (let j = 0; j < numEmpty; j++) {
+            newList.push({
+                key:'',
+                value:''
+            })
+        }
         newList = newList.concat(props.columns[i].list)
-        for (let j = 0; j < numEmpty; j++) newList.push({key:'', value:''})
+        for (let j = 0; j < numEmpty; j++) {
+            newList.push({
+                key:'',
+                value:''
+            })
+        }
 
-        let d = props.columns[i].defaultIndex || 0
-        d += numEmpty
+        // calculate selected index
+        let index = props.columns[i].defaultIndex || 0
+        index += numEmpty
         let max = newList.length - Math.ceil(props.rowsVisible/2)
-        if (d < numEmpty) d = numEmpty
-        if (d > max) d = max
+        if (index < numEmpty) index = numEmpty
+        if (index > max) index = max
         columns.push({
             list: newList,
         })
-        selected.push(d)
+        selected.push(index)
     }
     return [selected, columns]
 }
@@ -53,33 +60,47 @@ export default class UltraSelect extends Component {
             })).isRequired,
             defaultIndex: PropTypes.number,
         })).isRequired,
+
+        // displaying
         rowsVisible: positiveOddPropType,
         rowHeight: PropTypes.number,
         rowHeightUnit: PropTypes.string,
+        titleHeight: PropTypes.number,
+        titleHeightUnit: PropTypes.string,
+
         backdrop: PropTypes.bool,
         getTitle: PropTypes.func,
         getStaticText: PropTypes.func,
         confirmButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-        onDidSelect: PropTypes.func,
-        onSelect: PropTypes.func,
-        disabled: PropTypes.bool,
-        useTouchTap: PropTypes.bool,
-        onOpen: PropTypes.func,
-        onClose: PropTypes.func,
+        cancelButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
         isOpen: PropTypes.bool,
+        useTouchTap: PropTypes.bool,
+
+        disabled: PropTypes.bool,
+
+        // events
+        onOpen: PropTypes.func,     // open select panel
+        onClose: PropTypes.func,    // close select panel
+        onConfirm: PropTypes.func,  // click confirm button or click backdrop
+        onCancel: PropTypes.func,   // click cancel button
+        onSelect: PropTypes.func,   // scroll up and down to select elements while select panel is open, good time for playing sound effects
+        onDidSelect: PropTypes.func, // stop scrolling up and down while select panel is open, useful for real-time selection
     }
 
     static defaultProps = {
         rowsVisible: 7,
         rowHeight: 25,
         rowHeightUnit: 'px',
+        titleHeightUnit: 'px',
         backdrop: true,
         confirmButton: 'CONFIRM',
+        cancelButton: 'CANCEL',
         disabled: false,
         useTouchTap: false,
     }
 
     _selectedNew = false
+    _selectedOnOpen
 
     constructor(props) {
         let [selected, columns] = _pushEmptyElements(props)
@@ -88,6 +109,8 @@ export default class UltraSelect extends Component {
         this.onScroll = this.onScroll.bind(this)
         this.onScrollEnd = this.onScrollEnd.bind(this)
         this.onToggle = this.onToggle.bind(this)
+        this.onCancel = this.onCancel.bind(this)
+        this.onConfirm = this.onConfirm.bind(this)
 
         let selectedValues = this.getSelectedValues(columns, selected)
         this.state = {
@@ -175,7 +198,7 @@ export default class UltraSelect extends Component {
                     ...this.state,
                     selected,
                     title: this.getTitle(selectedValues),
-                    staticText: this.getStaticText(selectedValues),
+                    //staticText: this.getStaticText(selectedValues),
                 })
                 this._selectedNew = true
                 if (this.props.onSelect) {
@@ -221,6 +244,7 @@ export default class UltraSelect extends Component {
             columns,
             open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen,
         })
+        this._selectedOnOpen = selected
     }
 
     componentDidUpdate() {
@@ -255,20 +279,60 @@ export default class UltraSelect extends Component {
         }
     }
 
-    onToggle() {
+    onToggle(isCancel = false) {
         if (!this.state.open && this.props.disabled) {
             return
         }
-        if (!this.state.open && this.props.onOpen) {
-            this.props.onOpen()
+        if (!this.state.open) {
+            if (this.props.onOpen) {
+                this.props.onOpen()
+            }
+            this._selectedOnOpen = this.state.selected
+            this.setState({
+                ...this.state,
+                open: true,
+            })
         }
-        if (this.state.open && this.props.onClose) {
-            this.props.onClose()
+        else {
+            if (this.props.onClose) {
+                this.props.onClose()
+            }
+            if (isCancel === true) {
+                // if cancel selection, revert state
+                let selectedValues = this.getSelectedValues(this.state.columns, this._selectedOnOpen)
+                this.setState({
+                    ...this.state,
+                    open: false,
+                    selected: this._selectedOnOpen,
+                    title: this.getTitle(selectedValues),
+                    staticText: this.getStaticText(selectedValues),
+                })
+            }
+            else {
+                // if confirm selection, update static text
+                let selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
+                this.setState({
+                    ...this.state,
+                    open: !this.state.open,
+                    title: this.getTitle(selectedValues),
+                    staticText: this.getStaticText(selectedValues),
+                })
+            }
         }
-        this.setState({
-            ...this.state,
-            open: !this.state.open
-        })
+    }
+
+    onConfirm() {
+        this.onToggle()
+        if (this.props.onConfirm) {
+            this.props.onConfirm()
+        }
+    }
+
+    onCancel() {
+        this.onToggle(true)
+        if (this.props.onCancel) {
+            this.props.onCancel()
+        }
     }
 
     renderStatic() {
@@ -281,16 +345,23 @@ export default class UltraSelect extends Component {
     renderBackdrop() {
         if (!this.props.backdrop) return null
         if (this.props.useTouchTap) {
-            return <div className='backdrop' onTouchTap={this.onToggle}></div>
+            return <div className='backdrop' onTouchTap={this.onConfirm}></div>
         }
-        return <div className='backdrop' onClick={this.onToggle}></div>
+        return <div className='backdrop' onClick={this.onConfirm}></div>
+    }
+
+    renderCancel() {
+        if (this.props.useTouchTap) {
+            return <a className='cancel' onTouchTap={this.onCancel}>{this.props.cancelButton}</a>
+        }
+        return <a className='cancel' onClick={this.onCancel}>{this.props.cancelButton}</a>
     }
 
     renderConfirm() {
         if (this.props.useTouchTap) {
-            return <a className='confirm' onTouchTap={this.onToggle}>{this.props.confirmButton}</a>
+            return <a className='confirm' onTouchTap={this.onConfirm}>{this.props.confirmButton}</a>
         }
-        return <a className='confirm' onClick={this.onToggle}>{this.props.confirmButton}</a>
+        return <a className='confirm' onClick={this.onConfirm}>{this.props.confirmButton}</a>
     }
 
     render() {
@@ -300,33 +371,35 @@ export default class UltraSelect extends Component {
 
         let listHeight = `${this.props.rowHeight*this.props.rowsVisible}${this.props.rowHeightUnit}`
         let rowHeight = `${this.props.rowHeight}${this.props.rowHeightUnit}`
+        let titleHeight = this.props.titleHeight ? `${this.props.titleHeight}${this.props.titleHeightUnit}` : rowHeight
         let separatorTop = `${this.props.rowHeight*Math.floor(this.props.rowsVisible/2)}${this.props.rowHeightUnit}`
 
         return <span>
             {this.renderStatic()}
             <MyPortal>
-            <div className='react-ultra-selector'>
-                {this.renderBackdrop()}
-                <div className='caption' style={{bottom: listHeight, height: rowHeight, lineHeight: rowHeight}}>
-                    <div className='title'>{this.state.title}</div>
-                    {this.renderConfirm()}
+                <div className='react-ultra-selector'>
+                    {this.renderBackdrop()}
+                    <div className='caption' style={{bottom: listHeight, height: titleHeight, lineHeight: titleHeight}}>
+                        {this.renderCancel()}
+                        <div className='title'>{this.state.title}</div>
+                        {this.renderConfirm()}
+                    </div>
+                    <div className='columns' style={{height: listHeight}}>
+                        <table><tbody><tr>
+                        {
+                        this.state.columns.map((elem, index) =>
+                            <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:3, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
+                                {
+                                    elem.list.map((e, i) =>
+                                        <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={`elem${i}`}
+                                            style={{height: rowHeight, lineHeight: rowHeight}}>{e.value}</div>)
+                                }
+                            </IScroll></td>)
+                        }
+                        </tr></tbody></table>
+                        <div className='separator' style={{top: separatorTop, height: rowHeight}}></div>
+                    </div>
                 </div>
-                <div className='columns' style={{height: listHeight}}>
-                    <table><tbody><tr>
-                    {
-                    this.state.columns.map((elem, index) =>
-                        <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:3, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
-                            {
-                                elem.list.map((e, i) =>
-                                    <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={`elem${i}`}
-                                        style={{height: rowHeight, lineHeight: rowHeight}}>{e.value}</div>)
-                            }
-                        </IScroll></td>)
-                    }
-                    </tr></tbody></table>
-                    <div className='separator' style={{top: separatorTop, height: rowHeight}}></div>
-                </div>
-            </div>
             </MyPortal>
         </span>
     }

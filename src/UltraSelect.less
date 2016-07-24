@@ -5,6 +5,13 @@
   transform: scale(@ratio);
 }
 
+.rotate(@degree) {
+  -webkit-transform: rotate(@degree);
+  -ms-transform: rotate(@degree); // IE9 only
+  -o-transform: rotate(@degree);
+  transform: rotate(@degree);
+}
+
 .scaleAndRotateX(@ratio; @deg) {
   -webkit-transform: scale(@ratio) rotateX(@deg);
   -ms-transform: scale(@ratio) rotateX(@deg); // IE9 only
@@ -32,7 +39,7 @@
   width: 0.5em;
   right: 0.4em;
   bottom: 40%;
-  transform: rotate(45deg);
+  .rotate(45deg);
 }
 
 .react-ultra-selector {
@@ -63,16 +70,22 @@
       text-align: center;
       display: table-cell;
       vertical-align: middle;
+      width: 100%;
+    }
+
+    .cancel {
+      padding: 0 10px;
+      background-color: #fff;
+      white-space: nowrap;
+      position: absolute;
     }
 
     .confirm {
-      display: table-cell;
       padding: 0 10px;
       background-color: #fff;
-      border-left: 1px solid #ddd;
-      vertical-align: middle;
       white-space: nowrap;
-      width: 1%;
+      right: 0;
+      position: absolute;
     }
 
     a, a:hover, a:active, a:visited {

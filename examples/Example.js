@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom'
 import 'whatwg-fetch'
 import UltraSelect from '../src/UltraSelect'
 //import UltraSelect from '../dist/react-ultra-select'
+import reactPerf from 'react-addons-perf'
 
 import "./Example.less"
+
+window.reactPerf = reactPerf
 
 class Example extends Component {
     constructor(props) {
@@ -15,6 +18,7 @@ class Example extends Component {
             repo: 'apple/swift',
             stargazers: {},
             step: 1,
+            basic: 0,
         }
     }
 
@@ -32,7 +36,7 @@ class Example extends Component {
     }
 
     getTitle(selectedValues) {
-        return <span>{selectedValues[0].value} Hello, I'm <b>{selectedValues[0].key}</b></span>
+        return <span>Hello, I'm <b>{selectedValues[0].key}</b></span>
     }
 
     getStaticText(selectedValues) {
@@ -40,7 +44,7 @@ class Example extends Component {
     }
 
     onDidSelect(index, selectedValue) {
-        console.log(`You have chosen ${selectedValue.key}, nice choice!`)
+        console.log(`onDidSelect: ${selectedValue.key}`)
     }
 
     onAsync(index, selectedValue) {
@@ -76,7 +80,7 @@ class Example extends Component {
         })
     }
 
-    onClose() {
+    onConfirm() {
         let step = this.state.step
         step++
         if (step > 2) {
@@ -103,7 +107,8 @@ class Example extends Component {
                     {key: 7, value: 'Miguel de Cervantes Saavedra'},
                     {key: 8, value: 'Emily Jane Brontë'},
                     {key: 9, value: 'Franz Kafka'},
-                ]
+                ],
+                defaultIndex: this.state.basic,
             }
         ]
 
@@ -212,13 +217,13 @@ class Example extends Component {
                 <h2 id="header">React Ultra Selection Examples</h2>
                 <div className="selection"><b>Basic selection </b><UltraSelect columns={basic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
-                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onClose={this.onClose.bind(this)}></UltraSelect></div>
+                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onConfirm={this.onConfirm.bind(this)}></UltraSelect></div>
                 <div className="selection"><b>Dynamic selection </b><div>
                     <span>Click <a href="#" onClick={this.onClick.bind(this)}>here</a> to add a row in selection </span>
                     <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>
                 </div>
                 <div className="selection"><b>Customizing </b>
-                    <UltraSelect columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect}
+                    <UltraSelect columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect} titleHeight={25}
                                  confirmButton="South Park!" getTitle={this.getTitle} getStaticText={this.getStaticText}></UltraSelect>
                 </div>
                 <div className="selection"><b>Load async data: </b>

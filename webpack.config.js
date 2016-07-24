@@ -1,6 +1,9 @@
 var path = require("path")
+var webpack = require('webpack')
 
-module.exports = {
+var isProd = process.env.NODE_ENV === 'production'
+
+var config = {
     entry: {
         "react-ultra-select": ["./src/UltraSelect.js"],
     },
@@ -12,7 +15,7 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, "dist"),
-        filename: "[name].js",
+        filename: isProd ? "[name].min.js" : "[name].js",
         library: "react-ultra-select",
         libraryTarget: "umd"
     },
@@ -31,3 +34,14 @@ module.exports = {
         ]
     }
 }
+
+if (isProd) {
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            minimize: true,
+            comments: false
+        })
+    )
+}
+
+module.exports = config

@@ -108,12 +108,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var positiveOddPropType = function positiveOddPropType(props, propName, componentName) {
 	    var val = props[propName];
-	    if (typeof val === 'number') {
-	        if (val < 0) {
-	            return new Error(componentName + ': ' + propName + ' should be passed a positive odd number.');
-	        } else if (val % 2 === 0) {
-	            return new Error(componentName + ': ' + propName + ' should be passed a positive odd number.');
-	        }
+	    if (typeof val === 'number' && val > 0 && val % 2 !== 0) {
+	        return null;
 	    } else {
 	        return new Error(componentName + ': ' + propName + ' should be passed a positive odd number.');
 	    }
@@ -124,21 +120,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var numEmpty = Math.floor(props.rowsVisible / 2);
 	    var columns = [];
 	    for (var i = 0, l = props.columns.length; i < l; i++) {
+	        // push several empty elements before & after for each column
 	        var newList = [];
 	        for (var j = 0; j < numEmpty; j++) {
-	            newList.push({ key: '', value: '' });
-	        }newList = newList.concat(props.columns[i].list);
+	            newList.push({
+	                key: '',
+	                value: ''
+	            });
+	        }
+	        newList = newList.concat(props.columns[i].list);
 	        for (var _j = 0; _j < numEmpty; _j++) {
-	            newList.push({ key: '', value: '' });
-	        }var d = props.columns[i].defaultIndex || 0;
-	        d += numEmpty;
+	            newList.push({
+	                key: '',
+	                value: ''
+	            });
+	        }
+
+	        // calculate selected index
+	        var index = props.columns[i].defaultIndex || 0;
+	        index += numEmpty;
 	        var max = newList.length - Math.ceil(props.rowsVisible / 2);
-	        if (d < numEmpty) d = numEmpty;
-	        if (d > max) d = max;
+	        if (index < numEmpty) index = numEmpty;
+	        if (index > max) index = max;
 	        columns.push({
 	            list: newList
 	        });
-	        selected.push(d);
+	        selected.push(index);
 	    }
 	    return [selected, columns];
 	};
@@ -163,6 +170,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.onScroll = _this.onScroll.bind(_this);
 	        _this.onScrollEnd = _this.onScrollEnd.bind(_this);
 	        _this.onToggle = _this.onToggle.bind(_this);
+	        _this.onCancel = _this.onCancel.bind(_this);
+	        _this.onConfirm = _this.onConfirm.bind(_this);
 
 	        var selectedValues = _this.getSelectedValues(columns, selected);
 	        _this.state = {
@@ -173,7 +182,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            columns: columns
 	        };
 	        return _this;
-	    }
+	    } // stop scrolling up and down while select panel is open, useful for real-time selection
+
 
 	    _createClass(UltraSelect, [{
 	        key: 'getSelectedValues',
@@ -260,9 +270,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var selectedValues = this.getSelectedValues(this.state.columns, selected);
 	                    this.setState(_extends({}, this.state, {
 	                        selected: selected,
-	                        title: this.getTitle(selectedValues),
-	                        staticText: this.getStaticText(selectedValues)
+	                        title: this.getTitle(selectedValues)
 	                    }));
+	                    //staticText: this.getStaticText(selectedValues),
 	                    this._selectedNew = true;
 	                    if (this.props.onSelect) {
 	                        this.props.onSelect(index, selectedValues[index]);
@@ -315,6 +325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                columns: columns,
 	                open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen
 	            }));
+	            this._selectedOnOpen = selected;
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -359,18 +370,58 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'onToggle',
 	        value: function onToggle() {
+	            var isCancel = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
 	            if (!this.state.open && this.props.disabled) {
 	                return;
 	            }
-	            if (!this.state.open && this.props.onOpen) {
-	                this.props.onOpen();
+	            if (!this.state.open) {
+	                if (this.props.onOpen) {
+	                    this.props.onOpen();
+	                }
+	                this._selectedOnOpen = this.state.selected;
+	                this.setState(_extends({}, this.state, {
+	                    open: true
+	                }));
+	            } else {
+	                if (this.props.onClose) {
+	                    this.props.onClose();
+	                }
+	                if (isCancel === true) {
+	                    // if cancel selection, revert state
+	                    var selectedValues = this.getSelectedValues(this.state.columns, this._selectedOnOpen);
+	                    this.setState(_extends({}, this.state, {
+	                        open: false,
+	                        selected: this._selectedOnOpen,
+	                        title: this.getTitle(selectedValues),
+	                        staticText: this.getStaticText(selectedValues)
+	                    }));
+	                } else {
+	                    // if confirm selection, update static text
+	                    var _selectedValues = this.getSelectedValues(this.state.columns, this.state.selected);
+	                    this.setState(_extends({}, this.state, {
+	                        open: !this.state.open,
+	                        title: this.getTitle(_selectedValues),
+	                        staticText: this.getStaticText(_selectedValues)
+	                    }));
+	                }
 	            }
-	            if (this.state.open && this.props.onClose) {
-	                this.props.onClose();
+	        }
+	    }, {
+	        key: 'onConfirm',
+	        value: function onConfirm() {
+	            this.onToggle();
+	            if (this.props.onConfirm) {
+	                this.props.onConfirm();
 	            }
-	            this.setState(_extends({}, this.state, {
-	                open: !this.state.open
-	            }));
+	        }
+	    }, {
+	        key: 'onCancel',
+	        value: function onCancel() {
+	            this.onToggle(true);
+	            if (this.props.onCancel) {
+	                this.props.onCancel();
+	            }
 	        }
 	    }, {
 	        key: 'renderStatic',
@@ -393,9 +444,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function renderBackdrop() {
 	            if (!this.props.backdrop) return null;
 	            if (this.props.useTouchTap) {
-	                return _react2.default.createElement('div', { className: 'backdrop', onTouchTap: this.onToggle });
+	                return _react2.default.createElement('div', { className: 'backdrop', onTouchTap: this.onConfirm });
 	            }
-	            return _react2.default.createElement('div', { className: 'backdrop', onClick: this.onToggle });
+	            return _react2.default.createElement('div', { className: 'backdrop', onClick: this.onConfirm });
+	        }
+	    }, {
+	        key: 'renderCancel',
+	        value: function renderCancel() {
+	            if (this.props.useTouchTap) {
+	                return _react2.default.createElement(
+	                    'a',
+	                    { className: 'cancel', onTouchTap: this.onCancel },
+	                    this.props.cancelButton
+	                );
+	            }
+	            return _react2.default.createElement(
+	                'a',
+	                { className: 'cancel', onClick: this.onCancel },
+	                this.props.cancelButton
+	            );
 	        }
 	    }, {
 	        key: 'renderConfirm',
@@ -403,13 +470,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (this.props.useTouchTap) {
 	                return _react2.default.createElement(
 	                    'a',
-	                    { className: 'confirm', onTouchTap: this.onToggle },
+	                    { className: 'confirm', onTouchTap: this.onConfirm },
 	                    this.props.confirmButton
 	                );
 	            }
 	            return _react2.default.createElement(
 	                'a',
-	                { className: 'confirm', onClick: this.onToggle },
+	                { className: 'confirm', onClick: this.onConfirm },
 	                this.props.confirmButton
 	            );
 	        }
@@ -424,6 +491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var listHeight = '' + this.props.rowHeight * this.props.rowsVisible + this.props.rowHeightUnit;
 	            var rowHeight = '' + this.props.rowHeight + this.props.rowHeightUnit;
+	            var titleHeight = this.props.titleHeight ? '' + this.props.titleHeight + this.props.titleHeightUnit : rowHeight;
 	            var separatorTop = '' + this.props.rowHeight * Math.floor(this.props.rowsVisible / 2) + this.props.rowHeightUnit;
 
 	            return _react2.default.createElement(
@@ -439,7 +507,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        this.renderBackdrop(),
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'caption', style: { bottom: listHeight, height: rowHeight, lineHeight: rowHeight } },
+	                            { className: 'caption', style: { bottom: listHeight, height: titleHeight, lineHeight: titleHeight } },
+	                            this.renderCancel(),
 	                            _react2.default.createElement(
 	                                'div',
 	                                { className: 'title' },
@@ -504,27 +573,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	        })).isRequired,
 	        defaultIndex: _react.PropTypes.number
 	    })).isRequired,
+
+	    // displaying
 	    rowsVisible: positiveOddPropType,
 	    rowHeight: _react.PropTypes.number,
 	    rowHeightUnit: _react.PropTypes.string,
+	    titleHeight: _react.PropTypes.number,
+	    titleHeightUnit: _react.PropTypes.string,
+
 	    backdrop: _react.PropTypes.bool,
 	    getTitle: _react.PropTypes.func,
 	    getStaticText: _react.PropTypes.func,
 	    confirmButton: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.node]),
-	    onDidSelect: _react.PropTypes.func,
-	    onSelect: _react.PropTypes.func,
-	    disabled: _react.PropTypes.bool,
+	    cancelButton: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.node]),
+	    isOpen: _react.PropTypes.bool,
 	    useTouchTap: _react.PropTypes.bool,
-	    onOpen: _react.PropTypes.func,
-	    onClose: _react.PropTypes.func,
-	    isOpen: _react.PropTypes.bool
-	};
+
+	    disabled: _react.PropTypes.bool,
+
+	    // events
+	    onOpen: _react.PropTypes.func, // open select panel
+	    onClose: _react.PropTypes.func, // close select panel
+	    onConfirm: _react.PropTypes.func, // click confirm button or click backdrop
+	    onCancel: _react.PropTypes.func, // click cancel button
+	    onSelect: _react.PropTypes.func, // scroll up and down to select elements while select panel is open, good time for playing sound effects
+	    onDidSelect: _react.PropTypes.func };
 	UltraSelect.defaultProps = {
 	    rowsVisible: 7,
 	    rowHeight: 25,
 	    rowHeightUnit: 'px',
+	    titleHeightUnit: 'px',
 	    backdrop: true,
 	    confirmButton: 'CONFIRM',
+	    cancelButton: 'CANCEL',
 	    disabled: false,
 	    useTouchTap: false
 	};
@@ -677,7 +758,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  display: table-cell;\n  padding: 0 10px;\n  background-color: #fff;\n  border-left: 1px solid #ddd;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 1%;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  -webkit-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%;\n}\n.react-ultra-selector .caption .cancel {\n  padding: 0 10px;\n  background-color: #fff;\n  white-space: nowrap;\n  position: absolute;\n}\n.react-ultra-selector .caption .confirm {\n  padding: 0 10px;\n  background-color: #fff;\n  white-space: nowrap;\n  right: 0;\n  position: absolute;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 
