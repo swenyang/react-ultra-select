@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import IScroll from 'iscroll-react'
 import iScroll from 'iscroll/build/iscroll-probe'
 import MyPortal from './Portal'
+import equal from 'deep-equal'
 
 import './UltraSelect.less'
 
@@ -135,7 +136,8 @@ export default class UltraSelect extends Component {
             return this.props.getTitle(selectedValues)
         }
         else {
-            return this.concatArrStrings(selectedValues)
+            return null
+            //return this.concatArrStrings(selectedValues)
         }
     }
 
@@ -247,6 +249,42 @@ export default class UltraSelect extends Component {
         this._selectedOnOpen = selected
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        if (Object.keys(this.props).length !== Object.keys(nextProps).length) {
+            return true
+        }
+        for (let key of Object.keys(nextProps)) {
+            if (key === 'columns') {
+                if (!equal(nextProps.columns, this.props.columns)) {
+                    return true
+                }
+            }
+            else if (!key.startsWith('on') && nextProps[key] !== this.props[key]) {
+                return true
+            }
+        }
+        //console.log('equal props')
+
+        if (Object.keys(this.state).length !== Object.keys(nextState).length) {
+            return true
+        }
+        for (let key of Object.keys(nextState)) {
+            if (key === 'title' || key === 'staticText') {
+                continue // ignore title because they are changed by columns & selected
+            }
+            if (key === 'selected' || key === 'columns') {
+                if (!equal(nextState[key], this.state[key])) {
+                    return true
+                }
+            }
+            else if (nextState[key] !== this.state[key]) {
+                return true
+            }
+        }
+        //console.log('no need update')
+        return false
+    }
+
     componentDidUpdate() {
         // use setTimeout(func, 0) to fix async data bugs
         setTimeout(() => {
@@ -323,16 +361,20 @@ export default class UltraSelect extends Component {
 
     onConfirm() {
         this.onToggle()
-        if (this.props.onConfirm) {
-            this.props.onConfirm()
-        }
+        setTimeout(() => {
+            if (this.props.onConfirm) {
+                this.props.onConfirm()
+            }
+        }, 0)
     }
 
     onCancel() {
         this.onToggle(true)
-        if (this.props.onCancel) {
-            this.props.onCancel()
-        }
+        setTimeout(() => {
+            if (this.props.onCancel) {
+                this.props.onCancel()
+            }
+        }, 0)
     }
 
     renderStatic() {

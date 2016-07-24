@@ -13,6 +13,8 @@ class Example extends Component {
     constructor(props) {
         super(props)
         this.onAsync = this.onAsync.bind(this)
+        this.onConfirmBasic = this.onConfirmBasic.bind(this)
+        this.onConfirm = this.onConfirm.bind(this)
         this.state = {
             serial: 1,
             repo: 'apple/swift',
@@ -89,6 +91,13 @@ class Example extends Component {
         this.setState({
             ...this.state,
             step,
+        })
+    }
+
+    onConfirmBasic() {
+        this.setState({
+            ...this.state,
+            basic: this.refs.basic.selectedValues[0].key,
         })
     }
 
@@ -215,9 +224,10 @@ class Example extends Component {
 
         return <div id="example">
                 <h2 id="header">React Ultra Selection Examples</h2>
-                <div className="selection"><b>Basic selection </b><UltraSelect columns={basic}></UltraSelect></div>
+                <div onClick={this.onConfirmBasic}>Click</div>
+                <div className="selection"><b>Basic selection </b><UltraSelect ref='basic' columns={basic} onConfirm={this.onConfirmBasic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
-                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onConfirm={this.onConfirm.bind(this)}></UltraSelect></div>
+                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onConfirm={this.onConfirm}></UltraSelect></div>
                 <div className="selection"><b>Dynamic selection </b><div>
                     <span>Click <a href="#" onClick={this.onClick.bind(this)}>here</a> to add a row in selection </span>
                     <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>
