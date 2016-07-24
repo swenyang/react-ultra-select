@@ -2,8 +2,8 @@ import React, { Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
 import IScroll from 'iscroll-react'
 import iScroll from 'iscroll/build/iscroll-probe'
-import MyPortal from './Portal'
 import equal from 'deep-equal'
+import MyPortal from './Portal'
 
 import './UltraSelect.less'
 
@@ -270,7 +270,7 @@ export default class UltraSelect extends Component {
         }
         for (let key of Object.keys(nextState)) {
             if (key === 'title' || key === 'staticText') {
-                continue // ignore title because they are changed by columns & selected
+                continue // ignore title/staticText because they are changed by columns & selected
             }
             if (key === 'selected' || key === 'columns') {
                 if (!equal(nextState[key], this.state[key])) {

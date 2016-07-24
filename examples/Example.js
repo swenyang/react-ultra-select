@@ -224,7 +224,6 @@ class Example extends Component {
 
         return <div id="example">
                 <h2 id="header">React Ultra Selection Examples</h2>
-                <div onClick={this.onConfirmBasic}>Click</div>
                 <div className="selection"><b>Basic selection </b><UltraSelect ref='basic' columns={basic} onConfirm={this.onConfirmBasic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
                 <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step===2} onConfirm={this.onConfirm}></UltraSelect></div>
