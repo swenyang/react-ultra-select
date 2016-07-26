@@ -1,7 +1,5 @@
 import React, { Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
-import IScroll from 'iscroll-react'
-import iScroll from 'iscroll/build/iscroll-probe'
 import equal from 'deep-equal'
 import MyPortal from './Portal'
 
@@ -94,14 +92,16 @@ export default class UltraSelect extends Component {
         rowHeightUnit: 'px',
         titleHeightUnit: 'px',
         backdrop: true,
-        confirmButton: 'CONFIRM',
-        cancelButton: 'CANCEL',
+        confirmButton: 'Confirm',
+        cancelButton: 'Cancel',
         disabled: false,
         useTouchTap: false,
     }
 
-    _selectedNew = false
+    // store the selected on open selection panel
     _selectedOnOpen
+    // set scroll timeout because there is not scroll end event
+    _scrollTimeout
 
     constructor(props) {
         let [selected, columns] = _pushEmptyElements(props)
@@ -156,23 +156,16 @@ export default class UltraSelect extends Component {
             }</span>
     }
 
-    calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
+    calculateSelected(offset, visibleCells, cellHeight) {
         let start = Math.floor(visibleCells/2)
-        let end = numCells - Math.ceil(visibleCells/2)
-
-        if (offset >= 0) return start
-        let maxOffset = visibleCells * cellHeight - totalHeight
-        if (offset <= maxOffset) return end
-
-        offset = Math.abs(offset)
         let num = Math.round(offset / cellHeight)
         return start + num
     }
 
-    findIScrollIndex(instance) {
+    findColumnIndex(instance) {
         for (let i = 0, l = this.state.columns.length; i < l; i++) {
-            let iScroll = this.refs[`iscroll${i}`]
-            if (iScroll && iScroll.iScrollInstance === instance) {
+            let column = this.refs[`column${i}`]
+            if (column && column === instance) {
                 return i
             }
         }
@@ -183,18 +176,33 @@ export default class UltraSelect extends Component {
         return this.getSelectedValues(this.state.columns, this.state.selected)
     }
 
-    onScroll(instance) {
-        //console.log(instance.y)
-        let index = this.findIScrollIndex(instance)
+    onScrollEnd(index) {
+        this.scrollToSelected()
+        this._scrollTimeout = null
+        if (this.props.onDidSelect) {
+            let selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
+            this.props.onDidSelect(index, selectedValues[index])
+        }
+    }
+
+    onScroll(event) {
+        let index = this.findColumnIndex(event.target)
         if (index === -1) return
-        let elem = this.refs[`elem${index}`]
+        let elem = this.refs.elem
         if (elem) {
+            let column = this.refs[`column${index}`]
+
+            // listen to scroll end event
+            if (this._scrollTimeout) {
+                clearTimeout(this._scrollTimeout)
+            }
+            this._scrollTimeout = setTimeout(() => this.onScrollEnd(index), 800)
+
             let selectedBefore = this.state.selected[index]
-            let selectedNew = this.calculateSelected(instance.y, this.state.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
-            if (selectedBefore !== selectedNew) {
-                //console.log("select new index", selectedNew, selectedBefore)
+            let selectedAfter = this.calculateSelected(column.scrollTop, this.props.rowsVisible, elem.clientHeight)
+            if (selectedBefore !== selectedAfter) {
                 let selected = [...this.state.selected]
-                selected[index] = selectedNew
+                selected[index] = selectedAfter
                 let selectedValues = this.getSelectedValues(this.state.columns, selected)
                 this.setState({
                     ...this.state,
@@ -202,7 +210,6 @@ export default class UltraSelect extends Component {
                     title: this.getTitle(selectedValues),
                     //staticText: this.getStaticText(selectedValues),
                 })
-                this._selectedNew = true
                 if (this.props.onSelect) {
                     this.props.onSelect(index, selectedValues[index])
                 }
@@ -210,28 +217,8 @@ export default class UltraSelect extends Component {
         }
     }
 
-    onScrollEnd(instance) {
-        let index = this.findIScrollIndex(instance)
-        let elem = this.refs[`elem${index}`]
-        if (elem) {
-            if (this._selectedNew) {
-                this._selectedNew = false
-                let selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
-                if (this.props.onDidSelect) {
-                    this.props.onDidSelect(index, selectedValues[index])
-                }
-            }
-
-            // incase instance bounce back on top/bottom
-            if (instance.y >= 0) return
-            let maxOffset = this.props.rowsVisible * elem.clientHeight - instance.scrollerHeight
-            if (instance.y <= maxOffset) return
-
-            instance.scrollTo(0, - (this.state.selected[index] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 0)
-        }
-    }
-
     componentDidMount() {
+        // incase mount with isOpen=true
         this.scrollToSelected()
     }
 
@@ -281,28 +268,30 @@ export default class UltraSelect extends Component {
                 return true
             }
         }
-        //console.log('no need update')
+        //console.log('no need to update')
         return false
     }
 
     componentDidUpdate() {
-        // use setTimeout(func, 0) to fix async data bugs
-        setTimeout(() => {
-            for (var i = 0, l = this.state.columns.length; i < l; i++) {
-                var iscroll = this.refs[`iscroll${i}`]
-                if (iscroll) {
-                    iscroll.updateIScroll()
-                }
-            }
-            this.scrollToSelected()
-        }, 0)
+        this.updateListeners()
+        this.scrollToSelected()
     }
 
     scrollToSelected() {
         for (let i = 0, l = this.state.columns.length; i < l; i++) {
-            let elem = this.refs[`elem${i}`]
+            let column = this.refs[`column${i}`]
+            if (!column) return
+            let elem = this.refs.elem
             if (!elem) return
-            this.refs[`iscroll${i}`].iScrollInstance.scrollTo(0, - (this.state.selected[i] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight, 0)
+            column.scrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight
+        }
+    }
+
+    updateListeners() {
+        for (let i = 0; i < this.state.columns.length; i++) {
+            let column = this.refs[`column${i}`]
+            if (!column) continue
+            column.onscroll = this.onScroll
         }
     }
 
@@ -379,9 +368,13 @@ export default class UltraSelect extends Component {
 
     renderStatic() {
         if (this.props.useTouchTap) {
-            return <div className={'react-ultra-selector-static'} onTouchTap={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>{this.state.staticText}</div>
+            return <div className={'react-ultra-selector-static'} onTouchTap={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>
+                {this.state.staticText}
+            </div>
         }
-        return <div className={'react-ultra-selector-static'} onClick={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>{this.state.staticText}</div>
+        return <div className={'react-ultra-selector-static'} onClick={this.onToggle} style={{background: this.props.disabled ? '#eee' : '#fff'}}>
+            {this.state.staticText}
+        </div>
     }
 
     renderBackdrop() {
@@ -415,6 +408,7 @@ export default class UltraSelect extends Component {
         let rowHeight = `${this.props.rowHeight}${this.props.rowHeightUnit}`
         let titleHeight = this.props.titleHeight ? `${this.props.titleHeight}${this.props.titleHeightUnit}` : rowHeight
         let separatorTop = `${this.props.rowHeight*Math.floor(this.props.rowsVisible/2)}${this.props.rowHeightUnit}`
+        let numColumns = this.state.columns.length
 
         return <span>
             {this.renderStatic()}
@@ -427,18 +421,16 @@ export default class UltraSelect extends Component {
                         {this.renderConfirm()}
                     </div>
                     <div className='columns' style={{height: listHeight}}>
-                        <table><tbody><tr>
                         {
-                        this.state.columns.map((elem, index) =>
-                            <td key={index}><IScroll ref={`iscroll${index}`} iScroll={iScroll} options={{mouseWheel:true, probeType:3, bindToWrapper:true}} onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}>
+                            this.state.columns.map((elem, index) =>
+                                <div ref={`column${index}`} key={index} style={{width: `${1/numColumns*100}%`, height: listHeight}} className="column">
                                 {
                                     elem.list.map((e, i) =>
-                                        <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={`elem${i}`}
+                                        <div className={'elem ' + this.getElemClass(i, index)} key={i} ref={index === 0 && i === 0 ? `elem` : null}
                                             style={{height: rowHeight, lineHeight: rowHeight}}>{e.value}</div>)
                                 }
-                            </IScroll></td>)
+                                </div>)
                         }
-                        </tr></tbody></table>
                         <div className='separator' style={{top: separatorTop, height: rowHeight}}></div>
                     </div>
                 </div>
