@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("react"), require("react-dom"), require("iscroll-react"), require("iscroll/build/iscroll-probe"));
+		module.exports = factory(require("react"), require("react-dom"), require("deep-equal"));
 	else if(typeof define === 'function' && define.amd)
-		define(["react", "react-dom", "iscroll-react", "iscroll/build/iscroll-probe"], factory);
+		define(["react", "react-dom", "deep-equal"], factory);
 	else if(typeof exports === 'object')
-		exports["react-ultra-select"] = factory(require("react"), require("react-dom"), require("iscroll-react"), require("iscroll/build/iscroll-probe"));
+		exports["react-ultra-select"] = factory(require("react"), require("react-dom"), require("deep-equal"));
 	else
-		root["react-ultra-select"] = factory(root["react"], root["react-dom"], root["iscroll-react"], root["iscroll/build/iscroll-probe"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__) {
+		root["react-ultra-select"] = factory(root["react"], root["react-dom"], root["deep-equal"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -82,19 +82,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _iscrollReact = __webpack_require__(4);
+	var _deepEqual = __webpack_require__(4);
 
-	var _iscrollReact2 = _interopRequireDefault(_iscrollReact);
+	var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
-	var _iscrollProbe = __webpack_require__(5);
-
-	var _iscrollProbe2 = _interopRequireDefault(_iscrollProbe);
-
-	var _Portal = __webpack_require__(6);
+	var _Portal = __webpack_require__(5);
 
 	var _Portal2 = _interopRequireDefault(_Portal);
 
-	__webpack_require__(7);
+	__webpack_require__(6);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -153,6 +149,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var UltraSelect = function (_Component) {
 	    _inherits(UltraSelect, _Component);
 
+	    // store the selected on open selection panel
+
 	    function UltraSelect(props) {
 	        _classCallCheck(this, UltraSelect);
 
@@ -164,8 +162,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var columns = _pushEmptyElements3[1];
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UltraSelect).call(this, props));
-
-	        _this._selectedNew = false;
 
 	        _this.onScroll = _this.onScroll.bind(_this);
 	        _this.onScrollEnd = _this.onScrollEnd.bind(_this);
@@ -182,7 +178,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            columns: columns
 	        };
 	        return _this;
-	    } // stop scrolling up and down while select panel is open, useful for real-time selection
+	    }
+	    // set scroll timeout because there is not scroll end event
+	    // stop scrolling up and down while select panel is open, useful for real-time selection
 
 
 	    _createClass(UltraSelect, [{
@@ -200,7 +198,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (this.props.getTitle) {
 	                return this.props.getTitle(selectedValues);
 	            } else {
-	                return this.concatArrStrings(selectedValues);
+	                return null;
+	                //return this.concatArrStrings(selectedValues)
 	            }
 	        }
 	    }, {
@@ -230,50 +229,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'calculateSelected',
-	        value: function calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
+	        value: function calculateSelected(offset, visibleCells, cellHeight) {
 	            var start = Math.floor(visibleCells / 2);
-	            var end = numCells - Math.ceil(visibleCells / 2);
-
-	            if (offset >= 0) return start;
-	            var maxOffset = visibleCells * cellHeight - totalHeight;
-	            if (offset <= maxOffset) return end;
-
-	            offset = Math.abs(offset);
 	            var num = Math.round(offset / cellHeight);
 	            return start + num;
 	        }
 	    }, {
-	        key: 'findIScrollIndex',
-	        value: function findIScrollIndex(instance) {
+	        key: 'findColumnIndex',
+	        value: function findColumnIndex(instance) {
 	            for (var i = 0, l = this.state.columns.length; i < l; i++) {
-	                var _iScroll = this.refs['iscroll' + i];
-	                if (_iScroll && _iScroll.iScrollInstance === instance) {
+	                var column = this.refs['column' + i];
+	                if (column && column === instance) {
 	                    return i;
 	                }
 	            }
 	            return -1;
 	        }
 	    }, {
+	        key: 'onScrollEnd',
+	        value: function onScrollEnd(index) {
+	            this.scrollToSelected();
+	            this._scrollTimeout = null;
+	            if (this.props.onDidSelect) {
+	                var selectedValues = this.getSelectedValues(this.state.columns, this.state.selected);
+	                this.props.onDidSelect(index, selectedValues[index]);
+	            }
+	        }
+	    }, {
 	        key: 'onScroll',
-	        value: function onScroll(instance) {
-	            //console.log(instance.y)
-	            var index = this.findIScrollIndex(instance);
+	        value: function onScroll(event) {
+	            var _this2 = this;
+
+	            var index = this.findColumnIndex(event.target);
 	            if (index === -1) return;
-	            var elem = this.refs['elem' + index];
+	            var elem = this.refs.elem;
 	            if (elem) {
+	                var column = this.refs['column' + index];
+
+	                // listen to scroll end event
+	                if (this._scrollTimeout) {
+	                    clearTimeout(this._scrollTimeout);
+	                }
+	                this._scrollTimeout = setTimeout(function () {
+	                    return _this2.onScrollEnd(index);
+	                }, 800);
+
 	                var selectedBefore = this.state.selected[index];
-	                var selectedNew = this.calculateSelected(instance.y, this.state.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight);
-	                if (selectedBefore !== selectedNew) {
-	                    //console.log("select new index", selectedNew, selectedBefore)
+	                var selectedAfter = this.calculateSelected(column.scrollTop, this.props.rowsVisible, elem.clientHeight);
+	                if (selectedBefore !== selectedAfter) {
 	                    var selected = [].concat(_toConsumableArray(this.state.selected));
-	                    selected[index] = selectedNew;
+	                    selected[index] = selectedAfter;
 	                    var selectedValues = this.getSelectedValues(this.state.columns, selected);
 	                    this.setState(_extends({}, this.state, {
 	                        selected: selected,
 	                        title: this.getTitle(selectedValues)
 	                    }));
 	                    //staticText: this.getStaticText(selectedValues),
-	                    this._selectedNew = true;
 	                    if (this.props.onSelect) {
 	                        this.props.onSelect(index, selectedValues[index]);
 	                    }
@@ -281,30 +292,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    }, {
-	        key: 'onScrollEnd',
-	        value: function onScrollEnd(instance) {
-	            var index = this.findIScrollIndex(instance);
-	            var elem = this.refs['elem' + index];
-	            if (elem) {
-	                if (this._selectedNew) {
-	                    this._selectedNew = false;
-	                    var selectedValues = this.getSelectedValues(this.state.columns, this.state.selected);
-	                    if (this.props.onDidSelect) {
-	                        this.props.onDidSelect(index, selectedValues[index]);
-	                    }
-	                }
-
-	                // incase instance bounce back on top/bottom
-	                if (instance.y >= 0) return;
-	                var maxOffset = this.props.rowsVisible * elem.clientHeight - instance.scrollerHeight;
-	                if (instance.y <= maxOffset) return;
-
-	                instance.scrollTo(0, -(this.state.selected[index] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0);
-	            }
-	        }
-	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            // incase mount with isOpen=true
 	            this.scrollToSelected();
 	        }
 	    }, {
@@ -328,28 +318,107 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._selectedOnOpen = selected;
 	        }
 	    }, {
-	        key: 'componentDidUpdate',
-	        value: function componentDidUpdate() {
-	            var _this2 = this;
+	        key: 'shouldComponentUpdate',
+	        value: function shouldComponentUpdate(nextProps, nextState) {
+	            if (Object.keys(this.props).length !== Object.keys(nextProps).length) {
+	                return true;
+	            }
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
 
-	            // use setTimeout(func, 0) to fix async data bugs
-	            setTimeout(function () {
-	                for (var i = 0, l = _this2.state.columns.length; i < l; i++) {
-	                    var iscroll = _this2.refs['iscroll' + i];
-	                    if (iscroll) {
-	                        iscroll.updateIScroll();
+	            try {
+	                for (var _iterator = Object.keys(nextProps)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var key = _step.value;
+
+	                    if (key === 'columns') {
+	                        if (!(0, _deepEqual2.default)(nextProps.columns, this.props.columns)) {
+	                            return true;
+	                        }
+	                    } else if (!key.startsWith('on') && nextProps[key] !== this.props[key]) {
+	                        return true;
 	                    }
 	                }
-	                _this2.scrollToSelected();
-	            }, 0);
+	                //console.log('equal props')
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            if (Object.keys(this.state).length !== Object.keys(nextState).length) {
+	                return true;
+	            }
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
+
+	            try {
+	                for (var _iterator2 = Object.keys(nextState)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var _key = _step2.value;
+
+	                    if (_key === 'title' || _key === 'staticText') {
+	                        continue; // ignore title/staticText because they are changed by columns & selected
+	                    }
+	                    if (_key === 'selected' || _key === 'columns') {
+	                        if (!(0, _deepEqual2.default)(nextState[_key], this.state[_key])) {
+	                            return true;
+	                        }
+	                    } else if (nextState[_key] !== this.state[_key]) {
+	                        return true;
+	                    }
+	                }
+	                //console.log('no need to update')
+	            } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                        _iterator2.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
+	                    }
+	                }
+	            }
+
+	            return false;
+	        }
+	    }, {
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            this.updateListeners();
+	            this.scrollToSelected();
 	        }
 	    }, {
 	        key: 'scrollToSelected',
 	        value: function scrollToSelected() {
 	            for (var i = 0, l = this.state.columns.length; i < l; i++) {
-	                var elem = this.refs['elem' + i];
+	                var column = this.refs['column' + i];
+	                if (!column) return;
+	                var elem = this.refs.elem;
 	                if (!elem) return;
-	                this.refs['iscroll' + i].iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0);
+	                column.scrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight;
+	            }
+	        }
+	    }, {
+	        key: 'updateListeners',
+	        value: function updateListeners() {
+	            for (var i = 0; i < this.state.columns.length; i++) {
+	                var column = this.refs['column' + i];
+	                if (!column) continue;
+	                column.onscroll = this.onScroll;
 	            }
 	        }
 	    }, {
@@ -410,18 +479,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'onConfirm',
 	        value: function onConfirm() {
+	            var _this3 = this;
+
 	            this.onToggle();
-	            if (this.props.onConfirm) {
-	                this.props.onConfirm();
-	            }
+	            setTimeout(function () {
+	                if (_this3.props.onConfirm) {
+	                    _this3.props.onConfirm();
+	                }
+	            }, 0);
 	        }
 	    }, {
 	        key: 'onCancel',
 	        value: function onCancel() {
+	            var _this4 = this;
+
 	            this.onToggle(true);
-	            if (this.props.onCancel) {
-	                this.props.onCancel();
-	            }
+	            setTimeout(function () {
+	                if (_this4.props.onCancel) {
+	                    _this4.props.onCancel();
+	                }
+	            }, 0);
 	        }
 	    }, {
 	        key: 'renderStatic',
@@ -483,7 +560,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this5 = this;
 
 	            if (!this.state.open) {
 	                return this.renderStatic();
@@ -493,6 +570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var rowHeight = '' + this.props.rowHeight + this.props.rowHeightUnit;
 	            var titleHeight = this.props.titleHeight ? '' + this.props.titleHeight + this.props.titleHeightUnit : rowHeight;
 	            var separatorTop = '' + this.props.rowHeight * Math.floor(this.props.rowsVisible / 2) + this.props.rowHeightUnit;
+	            var numColumns = this.state.columns.length;
 
 	            return _react2.default.createElement(
 	                'span',
@@ -519,36 +597,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        _react2.default.createElement(
 	                            'div',
 	                            { className: 'columns', style: { height: listHeight } },
-	                            _react2.default.createElement(
-	                                'table',
-	                                null,
-	                                _react2.default.createElement(
-	                                    'tbody',
-	                                    null,
-	                                    _react2.default.createElement(
-	                                        'tr',
-	                                        null,
-	                                        this.state.columns.map(function (elem, index) {
-	                                            return _react2.default.createElement(
-	                                                'td',
-	                                                { key: index },
-	                                                _react2.default.createElement(
-	                                                    _iscrollReact2.default,
-	                                                    { ref: 'iscroll' + index, iScroll: _iscrollProbe2.default, options: { mouseWheel: true, probeType: 3, bindToWrapper: true }, onScroll: _this3.onScroll, onScrollEnd: _this3.onScrollEnd },
-	                                                    elem.list.map(function (e, i) {
-	                                                        return _react2.default.createElement(
-	                                                            'div',
-	                                                            { className: 'elem ' + _this3.getElemClass(i, index), key: i, ref: 'elem' + i,
-	                                                                style: { height: rowHeight, lineHeight: rowHeight } },
-	                                                            e.value
-	                                                        );
-	                                                    })
-	                                                )
-	                                            );
-	                                        })
-	                                    )
-	                                )
-	                            ),
+	                            this.state.columns.map(function (elem, index) {
+	                                return _react2.default.createElement(
+	                                    'div',
+	                                    { ref: 'column' + index, key: index, style: { width: 1 / numColumns * 100 + '%', height: listHeight }, className: 'column' },
+	                                    elem.list.map(function (e, i) {
+	                                        return _react2.default.createElement(
+	                                            'div',
+	                                            { className: 'elem ' + _this5.getElemClass(i, index), key: i, ref: index === 0 && i === 0 ? 'elem' : null,
+	                                                style: { height: rowHeight, lineHeight: rowHeight } },
+	                                            e.value
+	                                        );
+	                                    })
+	                                );
+	                            }),
 	                            _react2.default.createElement('div', { className: 'separator', style: { top: separatorTop, height: rowHeight } })
 	                        )
 	                    )
@@ -592,8 +654,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    disabled: _react.PropTypes.bool,
 
 	    // events
-	    onOpen: _react.PropTypes.func, // open select panel
-	    onClose: _react.PropTypes.func, // close select panel
+	    onOpen: _react.PropTypes.func, // open selection panel
+	    onClose: _react.PropTypes.func, // close selection panel
 	    onConfirm: _react.PropTypes.func, // click confirm button or click backdrop
 	    onCancel: _react.PropTypes.func, // click cancel button
 	    onSelect: _react.PropTypes.func, // scroll up and down to select elements while select panel is open, good time for playing sound effects
@@ -604,8 +666,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    rowHeightUnit: 'px',
 	    titleHeightUnit: 'px',
 	    backdrop: true,
-	    confirmButton: 'CONFIRM',
-	    cancelButton: 'CANCEL',
+	    confirmButton: 'Confirm',
+	    cancelButton: 'Cancel',
 	    disabled: false,
 	    useTouchTap: false
 	};
@@ -632,12 +694,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
-
-/***/ },
-/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -724,16 +780,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Portal;
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(8);
+	var content = __webpack_require__(7);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(10)(content, {});
+	var update = __webpack_require__(9)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -750,21 +806,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(9)();
+	exports = module.exports = __webpack_require__(8)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  -webkit-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%;\n}\n.react-ultra-selector .caption .cancel {\n  padding: 0 10px;\n  background-color: #fff;\n  white-space: nowrap;\n  position: absolute;\n}\n.react-ultra-selector .caption .confirm {\n  padding: 0 10px;\n  background-color: #fff;\n  white-space: nowrap;\n  right: 0;\n  position: absolute;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  overflow: scroll;\n  background-color: #fff;\n  text-align: center;\n}\n.react-ultra-selector .columns table {\n  width: 100%;\n  height: 100%;\n  background-color: #eee;\n}\n.react-ultra-selector .columns table td {\n  position: relative;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  -webkit-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%;\n}\n.react-ultra-selector .caption .cancel {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  position: absolute;\n}\n.react-ultra-selector .caption .confirm {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  right: 0;\n  position: absolute;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n  background-color: #eee;\n}\n.react-ultra-selector .columns .column {\n  display: inline-block;\n  overflow: scroll;\n}\n.react-ultra-selector .columns .column::-webkit-scrollbar {\n  display: none;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/*
@@ -820,7 +876,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

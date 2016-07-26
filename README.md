@@ -1,40 +1,33 @@
 # React Ultra Select
-A highly extensible component for React, good substitution for HTML 'select' element on mobile platforms.
+A good substitution for HTML `select` and `option` tags on mobile platforms, based on React.
 
-Basically React Ultra Select works like the 'select' and 'option' of INPUT element in HTML, however, it accepts groups of data and provides event callbacks for implementing more powerful features. Very handy.
+Basically React Ultra Select works like the `select` and `option` of INPUT element in HTML, however, it accepts groups of data and provides event callbacks for implementing more powerful features. Very handy.
 
-**Still testing, will publish 2.0.0 when stable.**
+## Features
+- **Compatible**
 
-# Features
-- **Mobile device oriented**
-
-	Designed for mobile platforms. You can use it on desktop browsers, but the options showing up at the bottom might not give you best experience.
-
-- **iOS like**
-
-	Totally iOS like, except the filters and the loop(haven't found a solution yet).
+    Works fine on all platforms, no matter iOS, Android or Desktop browsers.
 
 - **Dynamic**
 
 	You can pass `N` groups of data to React Ultra Select. It will handle data automatically and divide into `N` columns respectively.
 
-	Also, you can customize the number visible rows and the height of each row, pass images or any React node as options, etc.
+	Also, you can customize the number visible rows and the height of each row, pass images or any React node as an selection other than a string.
 
 - **Extensible**
 
-	Every time the React Ultra Select selects a group of values, it will emit an `onSelect` event. Every time it stops scrolling, it will emit an `onDidSelect` event. These events will be very useful for make more powerful components.
+	Emits 6 types of events for composing more powerful components.
 
 	For example, I write a [React Date Picker][2] based on this component. It's much more complicated.
 
-# How to use
+- **iOS like**
 
-This component relies on some libraries, import them into your project first.
+	Totally iOS like, except the filters and the loop(haven't found a solution yet).
+
+## How to use
 
 ```
-npm i react --save
-npm i react-dom --save
-npm i iscroll --save
-npm i iscroll-react --save
+npm i react-ultra-select --save
 ```
 
 Using it in your project:
@@ -45,23 +38,14 @@ import UltraSelect from 'react-ultra-select'
 
 class SomeComponent extends Component {
 	render() {
-	var columns = [
+	    var columns = [
             {
                 list: [
                     {key: 1, value: 'Male'},
                     {key: 2, value: 'Female'},
                     {key: 3, value: 'Others'},
                 ],
-            },
-            {
-                list: [
-                    {key: 10, value: '0-20'},
-                    {key: 20, value: '20-29'},
-                    {key: 30, value: '30-39'},
-                    {key: 40, value: '40-49'},
-                    {key: 50, value: '50+'},
-                ],
-                defaultIndex: 3
+                defaultIndex: 1,
             },
         ]
 		return <UltraSelect columns={columns}></UltraSelect>
@@ -69,168 +53,166 @@ class SomeComponent extends Component {
 }
 ```
 
-Note that you should pack `iscroll-probe` instead of `iscroll` in your production code, cause this component use `iscroll-probe` to calculate scroll offset and selected indecies.
-```js
-import iScrollProbe from "iscroll/build/iscroll-probe"
-```
+## Props
 
-# Props
+### Required Props
+
+- columns
+
+    Type: Array
+
+    Description: an array with each element containing one selection list and its default index.
+
+    Sample:
+
+    ```js
+    [
+      {
+        list: [{
+          key: 1,
+          value: 1
+        }],
+        defaultIndex: 0,
+      }
+    ]
+    ```
+
+### Optional Props
 
  <table>
     <thead>
         <tr>
             <td><b>Prop Name</b></td>
-            <td><b>Sub Prop</b></td>
-            <td><b>Required</b></td>
+            <td><b>Default Value</b></td>
             <td><b>Type</b></td>
             <td><b>Description</b></td>
-            <td><b>Example Value</b></td>
+            <td><b>Sample</b></td>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>`columns`</td>
-            <td></td>
-            <td>Yes</td>
-            <td>Array</td>
-            <td>Each element contains one selection list and its default index</td>
-            <td>```[{
-                    list: [{key: 1, value: 1}],
-                    defaultIndex: 0,
-                }]```</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>`list`</td>
-            <td>Yes</td>
-            <td>Array</td>
-            <td>An array of options</td>
-            <td>`[{key: 1, value: 1}]`</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>`defaultIndex`</td>
-            <td>Default to `0`</td>
-            <td>Number</td>
-            <td>Default index for selected element, starting from 0</td>
-            <td>`0`</td>
-        </tr>
-        <tr>
-            <td>`rowsVisible`</td>
-            <td></td>
-            <td>Default to `7`</td>
+            <td>rowsVisible</td>
+            <td>`7`</td>
             <td>Odd Number</td>
             <td>Visible rows at one time</td>
             <td>`3`, `5`, `7`, `9` etc.</td>
         </tr>
         <tr>
-            <td>`rowHeight`</td>
-            <td></td>
-            <td>Default to `25`</td>
+            <td>rowHeight</td>
+            <td>`25`</td>
             <td>Number</td>
             <td>Height for each row</td>
-            <td>`2`</td>
+            <td></td>
         </tr>
         <tr>
             <td>`rowHeightUnit`</td>
-            <td></td>
-            <td>Default to `px`</td>
+            <td>`px`</td>
             <td>String</td>
             <td>Height unit for each row, works with `rowHeight`</td>
             <td>`px`, `em`, `rem` etc.</td>
         </tr>
         <tr>
             <td>`backdrop`</td>
-            <td></td>
-            <td>Default to `true`</td>
+            <td>`true`</td>
             <td>Boolean</td>
             <td>Whether to show backdrop or not</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`confirmButton`</td>
+            <td>`'Confirm'`</td>
+            <td>String or React Node</td>
+            <td>Used to customize the confirm button label</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`cancelButton`</td>
+            <td>`'Cancel'`</td>
+            <td>String or React Node</td>
+            <td>Used to customize the cancel button label</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`disabled`</td>
             <td>`false`</td>
+            <td>Boolean</td>
+            <td>Disable selection panel or not</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`useTouchTap`</td>
+            <td>`false`</td>
+            <td>Boolean</td>
+            <td>Use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>`isOpen`</td>
+            <td>`null`</td>
+            <td>Boolean or `null`</td>
+            <td>Whether the columns shows up or not</td>
+            <td></td>
         </tr>
         <tr>
             <td>`getTitle`</td>
             <td></td>
-            <td>No</td>
             <td>Function</td>
-            <td>A function to set the bottom title, will be called with an array of selected values</td>
-            <td>`(selectedValues) => <div>Please select</div>`</td>
+            <td>A function to set the selection panel's title, will be called with an array of selected values, i.e. `(key, value)`</td>
+            <td></td>
         </tr>
         <tr>
             <td>`getStaticText`</td>
             <td></td>
-            <td>No</td>
             <td>Function</td>
             <td>A function to set the text in collapse state, will be called with an array of selected values</td>
-            <td>`(selectedValues) => <div>Please select</div>`</td>
-        </tr>
-        <tr>
-            <td>`confirmButton`</td>
             <td></td>
-            <td>Default to `CONFIRM`</td>
-            <td>String or React Node</td>
-            <td>Used to customize the confirm button label</td>
-            <td>`OK`</td>
-        </tr>
-        <tr>
-            <td>`onDidSelect`</td>
-            <td></td>
-            <td>No</td>
-            <td>Function</td>
-            <td>Will be called with the value of the selecting column when selection is made and scrolling stops</td>
-            <td>`(selectedValue) => console.log(selectValue)`</td>
-        </tr>
-        <tr>
-            <td>`onSelect`</td>
-            <td></td>
-            <td>No</td>
-            <td>Function</td>
-            <td>Will be called with the value of the selecting column when selection is made</td>
-            <td>`(selectedValue) => console.log(selectValue)`</td>
         </tr>
         <tr>
             <td>`onOpen`</td>
             <td></td>
-            <td>No</td>
             <td>Function</td>
-            <td>Will be called when the columns show up</td>
+            <td>Will be called when the selection panel show up</td>
             <td></td>
         </tr>
         <tr>
             <td>`onClose`</td>
             <td></td>
-            <td>No</td>
             <td>Function</td>
-            <td>Will be called when the columns hide</td>
+            <td>Will be called when the selection panel hide</td>
             <td></td>
         </tr>
         <tr>
-            <td>`disabled`</td>
+            <td>`onConfirm`</td>
             <td></td>
-            <td>Default to `false`</td>
-            <td>Boolean</td>
-            <td>Disable selection</td>
-            <td>`true`</td>
+            <td>Function</td>
+            <td>Will be called when the confirm button or backdrop is clicked</td>
+            <td></td>
         </tr>
         <tr>
-            <td>`useTouchTap`</td>
+            <td>`onCancel`</td>
             <td></td>
-            <td>Default to `false`</td>
-            <td>Boolean</td>
-            <td>Use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
-            <td>`true`</td>
+            <td>Function</td>
+            <td>Will be called when the cancel button is clicked</td>
+            <td></td>
         </tr>
         <tr>
-            <td>`isOpen`</td>
+            <td>`onDidSelect`</td>
             <td></td>
-            <td>Default to `null`</td>
-            <td>Boolean</td>
-            <td>Whether the colomns shows up or not</td>
-            <td>`true`</td>
+            <td>Function</td>
+            <td>Will be called when scrolling stops, useful for real-time selection</td>
+            <td>`(index, selectedValue) => selectedValue.key`</td>
+        </tr>
+        <tr>
+            <td>`onSelect`</td>
+            <td></td>
+            <td>Function</td>
+            <td>Will be called when selected value is changed, useful for playing sound effects</td>
+            <td>`(index, selectedValue) => selectedValue.key`</td>
         </tr>
     </tbody>
 </table>
 
-# Functions
+## Functions
 
 - `UltraSelect.selectedValues`
 
@@ -240,7 +222,7 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
     this.refs.ultraSelect.selectedValues
     ```
 
-# Examples
+## Examples
 - Online
 
 	Open <https://swenyang.github.io/react-ultra-select> to see online demo.
@@ -249,14 +231,16 @@ import iScrollProbe from "iscroll/build/iscroll-probe"
 
 	Clone this repo, and run `npm run examples`. Then navigate to <http://localhost:8080> to see examples.
 
-# TODO
-- Removing iscroll-probe
+## TODO
+- [x] Removing iscroll-probe
 
 	React Ultra Select currently relies on [React IScroll][1] and [iscroll-probe][3], it's a bit too heavy. Should find a smaller solution for calculating selected indecies.
 
 - Transitions
 
 	Add some smooth transitions for backdrop and columns showing up and hiding.
+
+- Optimizations
 
 [1]: https://github.com/swenyang/react-iscroll
 [2]: https://github.com/swenyang/react-date-picker

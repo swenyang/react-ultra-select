@@ -78,8 +78,8 @@ export default class UltraSelect extends Component {
         disabled: PropTypes.bool,
 
         // events
-        onOpen: PropTypes.func,     // open select panel
-        onClose: PropTypes.func,    // close select panel
+        onOpen: PropTypes.func,     // open selection panel
+        onClose: PropTypes.func,    // close selection panel
         onConfirm: PropTypes.func,  // click confirm button or click backdrop
         onCancel: PropTypes.func,   // click cancel button
         onSelect: PropTypes.func,   // scroll up and down to select elements while select panel is open, good time for playing sound effects

@@ -1,37 +1,45 @@
 # Change Logs
 
+## Version 1.1.0
+
+Date: ??
+
+### FEATURES
+
+- add a cancel button and cancellation feature
+- add shouldComponentUpdate function to reduce render count
+- export minified dist files
+- use scrollTop instead of iscroll to calculate selected values
+
+### TODO
+
+- hide vertical scroll bars in non-webkit browsers such as Firefox/IE/Opera etc.
+
 ## Version 1.0.10
 
-- 2016-06-25
 - add `isOpen` prop
 
 ## Version 1.0.9
 
-- 2016-06-22
 - add `onOpen` and `onClose` events
 - fix confirm-button `href` bug
 
 ## Version 1.0.8
 
-- 2016-06-22
 - use copied `columns` props instead of modifying columns props directly
 
 ## Version 1.0.7
 
-- 2016-06-22
 - add 'useTouchTap' prop to work with `react-tap-event-plugin`
 
 ## Version 1.0.6
 
-- 2016-06-11
 - Export `Portal` component
 
 ## Version 1.0.5
 
-- 2016-06-08
 - Add `disabled` prop
 
 ## Version 1.0.4
 
-- 2016-06-07
 - Supports async data loading
