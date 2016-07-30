@@ -1,7 +1,7 @@
 # React Ultra Select
 A good substitution for HTML `select` and `option` tags on mobile platforms, based on React.
 
-Basically React Ultra Select works like the `select` and `option` of INPUT element in HTML, however, it accepts groups of data and provides event callbacks for implementing more powerful features. Very handy.
+Basically React Ultra Select works like the `select` and `option` tags in HTML, however, it supports multi-column selection with event callbacks for implementing more powerful features. Very handy.
 
 ## Features
 - **Compatible**
@@ -10,19 +10,13 @@ Basically React Ultra Select works like the `select` and `option` of INPUT eleme
 
 - **Dynamic**
 
-	You can pass `N` groups of data to React Ultra Select. It will handle data automatically and divide into `N` columns respectively.
+	You can pass groups of data to React Ultra Select. It will handle data automatically and divide them into `N` columns respectively.
 
 	Also, you can customize the number visible rows and the height of each row, pass images or any React node as an selection other than a string.
 
 - **Extensible**
 
-	Emits 6 types of events for composing more powerful components.
-
-	For example, I write a [React Date Picker][2] based on this component. It's much more complicated.
-
-- **iOS like**
-
-	Totally iOS like, except the filters and the loop(haven't found a solution yet).
+	Supports 6 types of events for composing more powerful components. For example, I write a [React Date Picker][2] based on this component.
 
 ## How to use
 
@@ -67,13 +61,13 @@ class SomeComponent extends Component {
 
     ```js
     [
-      {
-        list: [{
-          key: 1,
-          value: 1
-        }],
-        defaultIndex: 0,
-      }
+        {
+            list: [{
+                key: 1,
+                value: 1
+            }],
+            defaultIndex: 0,
+        }
     ]
     ```
 
@@ -105,118 +99,102 @@ class SomeComponent extends Component {
             <td></td>
         </tr>
         <tr>
-            <td>`rowHeightUnit`</td>
+            <td>rowHeightUnit</td>
             <td>`px`</td>
             <td>String</td>
             <td>Height unit for each row, works with `rowHeight`</td>
             <td>`px`, `em`, `rem` etc.</td>
         </tr>
         <tr>
-            <td>`backdrop`</td>
+            <td>backdrop</td>
             <td>`true`</td>
             <td>Boolean</td>
             <td>Whether to show backdrop or not</td>
             <td></td>
         </tr>
         <tr>
-            <td>`confirmButton`</td>
+            <td>confirmButton</td>
             <td>`'Confirm'`</td>
             <td>String or React Node</td>
             <td>Used to customize the confirm button label</td>
             <td></td>
         </tr>
         <tr>
-            <td>`cancelButton`</td>
+            <td>cancelButton</td>
             <td>`'Cancel'`</td>
             <td>String or React Node</td>
             <td>Used to customize the cancel button label</td>
             <td></td>
         </tr>
         <tr>
-            <td>`disabled`</td>
+            <td>disabled</td>
             <td>`false`</td>
             <td>Boolean</td>
             <td>Disable selection panel or not</td>
             <td></td>
         </tr>
         <tr>
-            <td>`useTouchTap`</td>
+            <td>useTouchTap</td>
             <td>`false`</td>
             <td>Boolean</td>
             <td>Use `onTouchTap` event instead of `onClick` to work with [react-tap-event-plugin][4]</td>
             <td></td>
         </tr>
         <tr>
-            <td>`isOpen`</td>
+            <td>isOpen</td>
             <td>`null`</td>
             <td>Boolean or `null`</td>
-            <td>Whether the columns shows up or not</td>
+            <td>Whether the selection panel shows up or not</td>
             <td></td>
         </tr>
         <tr>
-            <td>`getTitle`</td>
+            <td>getTitle</td>
             <td></td>
             <td>Function</td>
             <td>A function to set the selection panel's title, will be called with an array of selected values, i.e. `(key, value)`</td>
             <td></td>
         </tr>
         <tr>
-            <td>`getStaticText`</td>
+            <td>getStaticText</td>
             <td></td>
             <td>Function</td>
             <td>A function to set the text in collapse state, will be called with an array of selected values</td>
             <td></td>
         </tr>
-        <tr>
-            <td>`onOpen`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when the selection panel show up</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>`onClose`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when the selection panel hide</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>`onConfirm`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when the confirm button or backdrop is clicked</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>`onCancel`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when the cancel button is clicked</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>`onDidSelect`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when scrolling stops, useful for real-time selection</td>
-            <td>`(index, selectedValue) => selectedValue.key`</td>
-        </tr>
-        <tr>
-            <td>`onSelect`</td>
-            <td></td>
-            <td>Function</td>
-            <td>Will be called when selected value is changed, useful for playing sound effects</td>
-            <td>`(index, selectedValue) => selectedValue.key`</td>
-        </tr>
     </tbody>
 </table>
 
-## Functions
+## Events/Callbacks
 
-- `UltraSelect.selectedValues`
+- `onOpen()`
 
-    Get the current array of selected values, each element contains a `key` and a `value`.
+    Will be called when the selection panel shows up.
+
+- `onClose()`
+
+    Will be called when the selection panel hide.
+
+- `onConfirm()`
+
+    Will be called when the confirm button or backdrop is clicked.
+
+- `onCancel()`
+
+    Will be called when the cancel button is clicked.
+
+- `onDidSelect(index, selectedValue)`
+
+    Will be called when scrolling stops, useful for real-time selection. `index` is the index of scrolling column and `selectedValue` is the newly selected element.
+
+- `onSelect(index, selectedValue)`
+
+    Will be called when scrolling and selected value is changed, useful for playing sound effects or so. `index` is the index of scrolling column and `selectedValue` is the newly selected element.
+
+## Getter
+
+- `selectedValues`
+
+    Get the current array of selected values, each element contains a `key` and a `value`. Remember to attach `ref` to `<UltraSelect>`.
 
     ```js
     this.refs.ultraSelect.selectedValues

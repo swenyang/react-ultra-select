@@ -102,6 +102,10 @@ export default class UltraSelect extends Component {
     _selectedOnOpen
     // set scroll timeout because there is not scroll end event
     _scrollTimeout
+    // mark on setting scrollTop manually
+    _manualScroll = {}
+    // use to save body's overflow property before onOpen
+    _prevBodyOverflow
 
     constructor(props) {
         let [selected, columns] = _pushEmptyElements(props)
@@ -190,17 +194,29 @@ export default class UltraSelect extends Component {
         if (index === -1) return
         let elem = this.refs.elem
         if (elem) {
-            let column = this.refs[`column${index}`]
-
             // listen to scroll end event
             if (this._scrollTimeout) {
                 clearTimeout(this._scrollTimeout)
             }
             this._scrollTimeout = setTimeout(() => this.onScrollEnd(index), 800)
 
+            let column = this.refs[`column${index}`]
+            if (this._manualScroll[index] != null) {
+                // no null or undefined, use the most updated scrollTop
+                for (let i of Object.keys(this._manualScroll)) {
+                    if (this._manualScroll[i] != null) {
+                        const c = this.refs[`column${i}`]
+                        if (c.scrollTop !== this._manualScroll[i]) {
+                            c.scrollTop = this._manualScroll[i]
+                            this._manualScroll[i] = null
+                        }
+                    }
+                }
+            }
             let selectedBefore = this.state.selected[index]
             let selectedAfter = this.calculateSelected(column.scrollTop, this.props.rowsVisible, elem.clientHeight)
             if (selectedBefore !== selectedAfter) {
+                //console.log(`column${index}: ${selectedBefore} => ${selectedAfter}, ${column.scrollTop}`)
                 let selected = [...this.state.selected]
                 selected[index] = selectedAfter
                 let selectedValues = this.getSelectedValues(this.state.columns, selected)
@@ -225,15 +241,21 @@ export default class UltraSelect extends Component {
     componentWillReceiveProps(nextProps) {
         let [selected, columns] = _pushEmptyElements(nextProps)
         let selectedValues = this.getSelectedValues(columns, selected)
-        this.setState({
+        let newState = {
             ...this.state,
             selected,
             title: this.getTitle(selectedValues),
-            staticText: this.getStaticText(selectedValues),
+            //staticText: this.getStaticText(selectedValues),
             columns,
             open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen,
-        })
-        this._selectedOnOpen = selected
+        }
+        if (newState.open) {
+            this._selectedOnOpen = selected
+        }
+        else {
+            newState.staticText = this.getStaticText(selectedValues)
+        }
+        this.setState(newState)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -283,7 +305,12 @@ export default class UltraSelect extends Component {
             if (!column) return
             let elem = this.refs.elem
             if (!elem) return
-            column.scrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight
+            const newScrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible/2)) * elem.clientHeight
+            if (newScrollTop !== column.scrollTop) {
+                this._manualScroll[i] = newScrollTop
+                //console.log(`set column${i} scrollTop from ${column.scrollTop} to ${newScrollTop}`)
+                column.scrollTop = newScrollTop
+            }
         }
     }
 
@@ -311,6 +338,10 @@ export default class UltraSelect extends Component {
             return
         }
         if (!this.state.open) {
+            if (this.props.backdrop) {
+                this._prevBodyOverflow = document.body.style.overflow
+                document.body.style.overflow = 'hidden'
+            }
             if (this.props.onOpen) {
                 this.props.onOpen()
             }
@@ -321,6 +352,10 @@ export default class UltraSelect extends Component {
             })
         }
         else {
+            if (this.props.backdrop) {
+                document.body.style.overflow = this._prevBodyOverflow
+                this._prevBodyOverflow = null
+            }
             if (this.props.onClose) {
                 this.props.onClose()
             }
@@ -350,20 +385,20 @@ export default class UltraSelect extends Component {
 
     onConfirm() {
         this.onToggle()
-        setTimeout(() => {
-            if (this.props.onConfirm) {
+        if (this.props.onConfirm) {
+            setTimeout(() => {
                 this.props.onConfirm()
-            }
-        }, 0)
+            }, 0)
+        }
     }
 
     onCancel() {
         this.onToggle(true)
-        setTimeout(() => {
-            if (this.props.onCancel) {
+        if (this.props.onCancel) {
+            setTimeout(() => {
                 this.props.onCancel()
-            }
-        }, 0)
+            }, 0)
+        }
     }
 
     renderStatic() {

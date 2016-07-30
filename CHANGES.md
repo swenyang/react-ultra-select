@@ -10,6 +10,8 @@ Date: ??
 - add shouldComponentUpdate function to reduce render count
 - export minified dist files
 - use scrollTop instead of iscroll to calculate selected values
+- set document.body's `overflow` to 'hidden' onOpen and reset onClose
+- record manual scroll actions to make scrolling in time
 
 ### TODO
 
