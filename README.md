@@ -3,6 +3,8 @@ A good substitution for HTML `select` and `option` tags on mobile platforms, bas
 
 Basically React Ultra Select works like the `select` and `option` tags in HTML, however, it supports multi-column selection with event callbacks for implementing more powerful features. Very handy.
 
+Version <= 1.0.10 uses [iScroll][3] which provides smoother scrolling experience, however, increases file size significantly.
+
 ## Features
 - **Compatible**
 
@@ -172,7 +174,7 @@ class SomeComponent extends Component {
 
 - `onClose()`
 
-    Will be called when the selection panel hide.
+    Will be called when the selection panel hides.
 
 - `onConfirm()`
 
@@ -213,6 +215,10 @@ class SomeComponent extends Component {
 - [x] Removing iscroll-probe
 
 	React Ultra Select currently relies on [React IScroll][1] and [iscroll-probe][3], it's a bit too heavy. Should find a smaller solution for calculating selected indecies.
+
+- Smoother scrolling experience with `div`
+
+- Hide vertical scroll bars in non-webkit browsers such as Firefox/IE/Opera etc.
 
 - Transitions
 

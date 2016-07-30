@@ -151,6 +151,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // store the selected on open selection panel
 
+	    // set scroll timeout because there is not scroll end event
+
+	    // mark on setting scrollTop manually
+
 	    function UltraSelect(props) {
 	        _classCallCheck(this, UltraSelect);
 
@@ -162,6 +166,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var columns = _pushEmptyElements3[1];
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UltraSelect).call(this, props));
+
+	        _this._manualScroll = {};
 
 	        _this.onScroll = _this.onScroll.bind(_this);
 	        _this.onScrollEnd = _this.onScrollEnd.bind(_this);
@@ -177,9 +183,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            open: _this.props.isOpen,
 	            columns: columns
 	        };
+	        if (_this.props.isOpen) {
+	            _this.setBodyOverflow(true);
+	        }
 	        return _this;
 	    }
-	    // set scroll timeout because there is not scroll end event
+	    // use to save body's overflow property before onOpen
 	    // stop scrolling up and down while select panel is open, useful for real-time selection
 
 
@@ -264,19 +273,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (index === -1) return;
 	            var elem = this.refs.elem;
 	            if (elem) {
-	                var column = this.refs['column' + index];
-
 	                // listen to scroll end event
 	                if (this._scrollTimeout) {
 	                    clearTimeout(this._scrollTimeout);
 	                }
 	                this._scrollTimeout = setTimeout(function () {
 	                    return _this2.onScrollEnd(index);
-	                }, 800);
+	                }, 500);
 
+	                var column = this.refs['column' + index];
+	                if (this._manualScroll[index] != null) {
+	                    // no null or undefined, use the most updated scrollTop
+	                    var _iteratorNormalCompletion = true;
+	                    var _didIteratorError = false;
+	                    var _iteratorError = undefined;
+
+	                    try {
+	                        for (var _iterator = Object.keys(this._manualScroll)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                            var i = _step.value;
+
+	                            if (this._manualScroll[i] != null) {
+	                                var c = this.refs['column' + i];
+	                                if (c.scrollTop !== this._manualScroll[i]) {
+	                                    c.scrollTop = this._manualScroll[i];
+	                                    this._manualScroll[i] = null;
+	                                }
+	                            }
+	                        }
+	                    } catch (err) {
+	                        _didIteratorError = true;
+	                        _iteratorError = err;
+	                    } finally {
+	                        try {
+	                            if (!_iteratorNormalCompletion && _iterator.return) {
+	                                _iterator.return();
+	                            }
+	                        } finally {
+	                            if (_didIteratorError) {
+	                                throw _iteratorError;
+	                            }
+	                        }
+	                    }
+	                }
 	                var selectedBefore = this.state.selected[index];
 	                var selectedAfter = this.calculateSelected(column.scrollTop, this.props.rowsVisible, elem.clientHeight);
 	                if (selectedBefore !== selectedAfter) {
+	                    //console.log(`column${index}: ${selectedBefore} => ${selectedAfter}, ${column.scrollTop}`)
 	                    var selected = [].concat(_toConsumableArray(this.state.selected));
 	                    selected[index] = selectedAfter;
 	                    var selectedValues = this.getSelectedValues(this.state.columns, selected);
@@ -296,6 +338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function componentDidMount() {
 	            // incase mount with isOpen=true
 	            this.scrollToSelected();
+	            this.registerListeners();
 	        }
 	    }, {
 	        key: 'componentWillReceiveProps',
@@ -308,14 +351,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var columns = _pushEmptyElements5[1];
 
 	            var selectedValues = this.getSelectedValues(columns, selected);
-	            this.setState(_extends({}, this.state, {
+	            var newState = _extends({}, this.state, {
 	                selected: selected,
 	                title: this.getTitle(selectedValues),
-	                staticText: this.getStaticText(selectedValues),
+	                //staticText: this.getStaticText(selectedValues),
 	                columns: columns,
 	                open: nextProps.isOpen == null ? this.state.open : nextProps.isOpen
-	            }));
-	            this._selectedOnOpen = selected;
+	            });
+	            if (newState.open) {
+	                this._selectedOnOpen = selected;
+	            } else {
+	                newState.staticText = this.getStaticText(selectedValues);
+	            }
+	            this.setState(newState);
 	        }
 	    }, {
 	        key: 'shouldComponentUpdate',
@@ -323,13 +371,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (Object.keys(this.props).length !== Object.keys(nextProps).length) {
 	                return true;
 	            }
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
 
 	            try {
-	                for (var _iterator = Object.keys(nextProps)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var key = _step.value;
+	                for (var _iterator2 = Object.keys(nextProps)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var key = _step2.value;
 
 	                    if (key === 'columns') {
 	                        if (!(0, _deepEqual2.default)(nextProps.columns, this.props.columns)) {
@@ -340,44 +388,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	                //console.log('equal props')
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator.return) {
-	                        _iterator.return();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
-	                }
-	            }
-
-	            if (Object.keys(this.state).length !== Object.keys(nextState).length) {
-	                return true;
-	            }
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
-
-	            try {
-	                for (var _iterator2 = Object.keys(nextState)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                    var _key = _step2.value;
-
-	                    if (_key === 'title' || _key === 'staticText') {
-	                        continue; // ignore title/staticText because they are changed by columns & selected
-	                    }
-	                    if (_key === 'selected' || _key === 'columns') {
-	                        if (!(0, _deepEqual2.default)(nextState[_key], this.state[_key])) {
-	                            return true;
-	                        }
-	                    } else if (nextState[_key] !== this.state[_key]) {
-	                        return true;
-	                    }
-	                }
-	                //console.log('no need to update')
 	            } catch (err) {
 	                _didIteratorError2 = true;
 	                _iteratorError2 = err;
@@ -393,12 +403,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
+	            if (Object.keys(this.state).length !== Object.keys(nextState).length) {
+	                return true;
+	            }
+	            var _iteratorNormalCompletion3 = true;
+	            var _didIteratorError3 = false;
+	            var _iteratorError3 = undefined;
+
+	            try {
+	                for (var _iterator3 = Object.keys(nextState)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                    var _key = _step3.value;
+
+	                    if (_key === 'title' || _key === 'staticText') {
+	                        continue; // ignore title/staticText because they are changed by columns & selected
+	                    }
+	                    if (_key === 'selected' || _key === 'columns') {
+	                        if (!(0, _deepEqual2.default)(nextState[_key], this.state[_key])) {
+	                            return true;
+	                        }
+	                    } else if (nextState[_key] !== this.state[_key]) {
+	                        return true;
+	                    }
+	                }
+	                //console.log('no need to update')
+	            } catch (err) {
+	                _didIteratorError3 = true;
+	                _iteratorError3 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	                        _iterator3.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError3) {
+	                        throw _iteratorError3;
+	                    }
+	                }
+	            }
+
 	            return false;
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
-	            this.updateListeners();
+	            this.registerListeners();
 	            this.scrollToSelected();
 	        }
 	    }, {
@@ -409,12 +457,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (!column) return;
 	                var elem = this.refs.elem;
 	                if (!elem) return;
-	                column.scrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight;
+	                var newScrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight;
+	                if (newScrollTop !== column.scrollTop) {
+	                    this._manualScroll[i] = newScrollTop;
+	                    //console.log(`set column${i} scrollTop from ${column.scrollTop} to ${newScrollTop}`)
+	                    column.scrollTop = newScrollTop;
+	                }
 	            }
 	        }
 	    }, {
-	        key: 'updateListeners',
-	        value: function updateListeners() {
+	        key: 'registerListeners',
+	        value: function registerListeners() {
 	            for (var i = 0; i < this.state.columns.length; i++) {
 	                var column = this.refs['column' + i];
 	                if (!column) continue;
@@ -437,6 +490,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    }, {
+	        key: 'setBodyOverflow',
+	        value: function setBodyOverflow(isStore) {
+	            if (isStore) {
+	                this._prevBodyOverflow = document.body.style.overflow;
+	                document.body.style.overflow = 'hidden';
+	            } else {
+	                document.body.style.overflow = this._prevBodyOverflow;
+	                this._prevBodyOverflow = null;
+	            }
+	        }
+	    }, {
 	        key: 'onToggle',
 	        value: function onToggle() {
 	            var isCancel = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
@@ -445,6 +509,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return;
 	            }
 	            if (!this.state.open) {
+	                if (this.props.backdrop) {
+	                    this.setBodyOverflow(true);
+	                }
 	                if (this.props.onOpen) {
 	                    this.props.onOpen();
 	                }
@@ -453,6 +520,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    open: true
 	                }));
 	            } else {
+	                if (this.props.backdrop) {
+	                    this.setBodyOverflow(false);
+	                }
 	                if (this.props.onClose) {
 	                    this.props.onClose();
 	                }
@@ -482,11 +552,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this3 = this;
 
 	            this.onToggle();
-	            setTimeout(function () {
-	                if (_this3.props.onConfirm) {
+	            if (this.props.onConfirm) {
+	                setTimeout(function () {
 	                    _this3.props.onConfirm();
-	                }
-	            }, 0);
+	                }, 0);
+	            }
 	        }
 	    }, {
 	        key: 'onCancel',
@@ -494,11 +564,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this4 = this;
 
 	            this.onToggle(true);
-	            setTimeout(function () {
-	                if (_this4.props.onCancel) {
+	            if (this.props.onCancel) {
+	                setTimeout(function () {
 	                    _this4.props.onCancel();
-	                }
-	            }, 0);
+	                }, 0);
+	            }
 	        }
 	    }, {
 	        key: 'renderStatic',
@@ -814,7 +884,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  -webkit-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%;\n}\n.react-ultra-selector .caption .cancel {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  position: absolute;\n}\n.react-ultra-selector .caption .confirm {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  right: 0;\n  position: absolute;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n  background-color: #eee;\n}\n.react-ultra-selector .columns .column {\n  display: inline-block;\n  overflow: scroll;\n}\n.react-ultra-selector .columns .column::-webkit-scrollbar {\n  display: none;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
+	exports.push([module.id, ".react-ultra-selector-static {\n  border-radius: 8px;\n  border: 1px solid #ddd;\n  padding: 5px 1.4em 5px 0.6em;\n  display: inline-block;\n  position: relative;\n}\n.react-ultra-selector-static:after {\n  content: '';\n  position: absolute;\n  border-color: #007aff;\n  border-style: solid;\n  border-width: 0 2px 2px 0;\n  height: 0.5em;\n  width: 0.5em;\n  right: 0.4em;\n  bottom: 40%;\n  -webkit-transform: rotate(45deg);\n  -ms-transform: rotate(45deg);\n  -o-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.react-ultra-selector {\n  display: inline;\n}\n.react-ultra-selector .backdrop {\n  position: fixed;\n  background-color: #000;\n  opacity: 0.5;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.react-ultra-selector .caption {\n  position: fixed;\n  background-color: #fff;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  padding: 5px 0;\n  display: table;\n  left: 0;\n}\n.react-ultra-selector .caption .title {\n  text-align: center;\n  display: table-cell;\n  vertical-align: middle;\n  width: 100%;\n}\n.react-ultra-selector .caption .cancel {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption .confirm {\n  padding: 0 15px;\n  background-color: #fff;\n  white-space: nowrap;\n  display: table-cell;\n  vertical-align: middle;\n}\n.react-ultra-selector .caption a,\n.react-ultra-selector .caption a:hover,\n.react-ultra-selector .caption a:active,\n.react-ultra-selector .caption a:visited {\n  text-decoration: none;\n}\n.react-ultra-selector .columns {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n  background-color: #eee;\n}\n.react-ultra-selector .columns .column {\n  display: inline-block;\n  overflow: scroll;\n}\n.react-ultra-selector .columns .column::-webkit-scrollbar {\n  display: none;\n}\n.react-ultra-selector .columns .elem {\n  color: #999;\n  overflow: hidden;\n}\n.react-ultra-selector .columns .elem-level-1 {\n  color: #000;\n  font-weight: bold;\n  -webkit-transform: scale(1);\n  -ms-transform: scale(1);\n  -o-transform: scale(1);\n  transform: scale(1);\n}\n.react-ultra-selector .columns .elem-level-2 {\n  -webkit-transform: scale(0.9) rotateX(15deg);\n  -ms-transform: scale(0.9) rotateX(15deg);\n  -o-transform: scale(0.9) rotateX(15deg);\n  transform: scale(0.9) rotateX(15deg);\n}\n.react-ultra-selector .columns .elem-level-3 {\n  -webkit-transform: scale(0.8) rotateX(30deg);\n  -ms-transform: scale(0.8) rotateX(30deg);\n  -o-transform: scale(0.8) rotateX(30deg);\n  transform: scale(0.8) rotateX(30deg);\n}\n.react-ultra-selector .columns .elem-level-4 {\n  -webkit-transform: scale(0.7) rotateX(45deg);\n  -ms-transform: scale(0.7) rotateX(45deg);\n  -o-transform: scale(0.7) rotateX(45deg);\n  transform: scale(0.7) rotateX(45deg);\n}\n.react-ultra-selector .separator {\n  position: absolute;\n  pointer-events: none;\n  width: 100%;\n  border-top: 1px solid #ddd;\n  border-bottom: 1px solid #ddd;\n}\n", ""]);
 
 	// exports
 

@@ -2,37 +2,33 @@
 
 ## Version 1.1.0
 
-Date: ??
+Date: 2016-07-30
 
 ### FEATURES
 
-- add a cancel button and cancellation feature
-- add shouldComponentUpdate function to reduce render count
-- export minified dist files
-- use scrollTop instead of iscroll to calculate selected values
-- set document.body's `overflow` to 'hidden' onOpen and reset onClose
-- record manual scroll actions to make scrolling in time
-
-### TODO
-
-- hide vertical scroll bars in non-webkit browsers such as Firefox/IE/Opera etc.
+- Add a cancel button and cancellation feature
+- Add `shouldComponentUpdate` function to reduce render count
+- Export minified dist files
+- Use scrollTop instead of iscroll to calculate selected values
+- Set document.body's `overflow` to 'hidden' onOpen and reset onClose
+- Record manual scroll actions to make scrolling in time
 
 ## Version 1.0.10
 
-- add `isOpen` prop
+- Add `isOpen` prop
 
 ## Version 1.0.9
 
-- add `onOpen` and `onClose` events
-- fix confirm-button `href` bug
+- Add `onOpen` and `onClose` events
+- Fix confirm-button `href` bug
 
 ## Version 1.0.8
 
-- use copied `columns` props instead of modifying columns props directly
+- Use copied `columns` props instead of modifying columns props directly
 
 ## Version 1.0.7
 
-- add 'useTouchTap' prop to work with `react-tap-event-plugin`
+- Add 'useTouchTap' prop to work with `react-tap-event-plugin`
 
 ## Version 1.0.6
 

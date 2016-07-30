@@ -125,6 +125,9 @@ export default class UltraSelect extends Component {
             open: this.props.isOpen,
             columns,
         }
+        if (this.props.isOpen) {
+            this.setBodyOverflow(true)
+        }
     }
 
     getSelectedValues(columns, selected) {
@@ -198,7 +201,7 @@ export default class UltraSelect extends Component {
             if (this._scrollTimeout) {
                 clearTimeout(this._scrollTimeout)
             }
-            this._scrollTimeout = setTimeout(() => this.onScrollEnd(index), 800)
+            this._scrollTimeout = setTimeout(() => this.onScrollEnd(index), 500)
 
             let column = this.refs[`column${index}`]
             if (this._manualScroll[index] != null) {
@@ -236,6 +239,7 @@ export default class UltraSelect extends Component {
     componentDidMount() {
         // incase mount with isOpen=true
         this.scrollToSelected()
+        this.registerListeners()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -295,7 +299,7 @@ export default class UltraSelect extends Component {
     }
 
     componentDidUpdate() {
-        this.updateListeners()
+        this.registerListeners()
         this.scrollToSelected()
     }
 
@@ -314,7 +318,7 @@ export default class UltraSelect extends Component {
         }
     }
 
-    updateListeners() {
+    registerListeners() {
         for (let i = 0; i < this.state.columns.length; i++) {
             let column = this.refs[`column${i}`]
             if (!column) continue
@@ -333,14 +337,24 @@ export default class UltraSelect extends Component {
         }
     }
 
+    setBodyOverflow(isStore) {
+        if (isStore) {
+            this._prevBodyOverflow = document.body.style.overflow
+            document.body.style.overflow = 'hidden'
+        }
+        else {
+            document.body.style.overflow = this._prevBodyOverflow
+            this._prevBodyOverflow = null
+        }
+    }
+
     onToggle(isCancel = false) {
         if (!this.state.open && this.props.disabled) {
             return
         }
         if (!this.state.open) {
             if (this.props.backdrop) {
-                this._prevBodyOverflow = document.body.style.overflow
-                document.body.style.overflow = 'hidden'
+                this.setBodyOverflow(true)
             }
             if (this.props.onOpen) {
                 this.props.onOpen()
@@ -353,8 +367,7 @@ export default class UltraSelect extends Component {
         }
         else {
             if (this.props.backdrop) {
-                document.body.style.overflow = this._prevBodyOverflow
-                this._prevBodyOverflow = null
+                this.setBodyOverflow(false)
             }
             if (this.props.onClose) {
                 this.props.onClose()
