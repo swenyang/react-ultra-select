@@ -225,7 +225,8 @@ class Example extends Component {
             list,
         })
 
-        return (<div id="example">
+        return (
+            <div id="example">
                 <h2 id="header">React Ultra Selection Examples</h2>
                 <div className="selection"><b>Basic selection </b><UltraSelect ref="basic" columns={basic} onConfirm={this.onConfirmBasic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
@@ -236,13 +237,14 @@ class Example extends Component {
                 </div>
                 <div className="selection"><b>Customizing </b>
                     <UltraSelect
-                      columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect} titleHeight={25}
-                      confirmButton="Choose" cancelButton="Give Up" getTitle={this.getTitle} getStaticText={this.getStaticText}
+                        columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect} titleHeight={25}
+                        confirmButton="Choose" cancelButton="Give Up" getTitle={this.getTitle} getStaticText={this.getStaticText}
                     ></UltraSelect>
                 </div>
                 <div className="selection"><b>Load async data: </b>
                     <UltraSelect columns={asynColumn} onDidSelect={this.onAsync} getTitle={() => 'Language - Stargazers'}></UltraSelect></div>
-        </div>)
+            </div>
+        )
     }
 }
 

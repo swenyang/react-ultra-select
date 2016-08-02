@@ -10,10 +10,12 @@ module.exports = {
         "semi": ["off"],
         "max-len": ["off"],
         "global-require": ["off"],
+        "no-confusing-arrow": ["off"],
         "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         "react/jsx-filename-extension": ["error", { "extensions": [".js", ".jsx"] }],
         "react/no-string-refs": ["off"],
         "react/self-closing-comp": ["off"],
-        "react/jsx-indent": ["off"],
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-indent-props": ["error", 4],
     }
 };
