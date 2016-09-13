@@ -2,7 +2,7 @@
 
 ## Version 1.0.11
 
-Date: ??
+Date: 2016-09-13
 
 - Import features from v1.1.0 to v1.0.10 (i.e. iscroll-scroll branch)
 - Add `backdropAction` prop
