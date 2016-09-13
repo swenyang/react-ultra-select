@@ -1,4 +1,6 @@
 import React, { Component, PropTypes } from 'react'
+import IScroll from 'iscroll-react'
+import iScroll from 'iscroll/build/iscroll-probe'
 import equal from 'deep-equal'
 import MyPortal from './Portal'
 
@@ -65,6 +67,7 @@ export default class UltraSelect extends Component {
         titleHeightUnit: PropTypes.string,
 
         backdrop: PropTypes.bool,
+        backdropAction: PropTypes.oneOf(['confirm', 'cancel', 'none']),
         getTitle: PropTypes.func,
         getStaticText: PropTypes.func,
         confirmButton: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
@@ -95,6 +98,7 @@ export default class UltraSelect extends Component {
         cancelButton: 'Cancel',
         disabled: false,
         useTouchTap: false,
+        backdropAction: 'confirm',
     }
 
     constructor(props) {
@@ -106,6 +110,7 @@ export default class UltraSelect extends Component {
         this.onToggle = this.onToggle.bind(this)
         this.onCancel = this.onCancel.bind(this)
         this.onConfirm = this.onConfirm.bind(this)
+        this.onTouchBackdrop = this.onTouchBackdrop.bind(this)
 
         const selectedValues = this.getSelectedValues(columns, selected)
         this.state = {
@@ -123,7 +128,6 @@ export default class UltraSelect extends Component {
     componentDidMount() {
         // incase mount with isOpen=true
         this.scrollToSelected()
-        this.registerListeners()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -183,50 +187,51 @@ export default class UltraSelect extends Component {
     }
 
     componentDidUpdate() {
-        this.registerListeners()
-        this.scrollToSelected()
+        // use setTimeout(func, 0) to fix async data bugs
+        setTimeout(() => {
+            for (let i = 0, l = this.state.columns.length; i < l; i++) {
+                const iscroll = this.refs[`column${i}`]
+                if (iscroll) {
+                    iscroll.updateIScroll()
+                }
+            }
+            this.scrollToSelected()
+        }, 0)
     }
 
-    onScrollEnd(index) {
-        this.scrollToSelected()
-        this.mScrollTimeout = null
-        if (this.props.onDidSelect) {
-            const selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
-            this.props.onDidSelect(index, selectedValues[index])
+    onScrollEnd(instance) {
+        const index = this.findColumnIndex(instance)
+        const { elem } = this.refs
+        if (elem) {
+            if (this.mSelectedNew) {
+                this.mSelectedNew = false
+                const selectedValues = this.getSelectedValues(this.state.columns, this.state.selected)
+                if (this.props.onDidSelect) {
+                    this.props.onDidSelect(index, selectedValues[index])
+                }
+            }
+
+            // incase instance bounce back on top/bottom
+            if (instance.y >= 0) return
+            const maxOffset = (this.props.rowsVisible * elem.clientHeight) - instance.scrollerHeight
+            if (instance.y <= maxOffset) return
+
+            instance.scrollTo(0, -(this.state.selected[index] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0)
         }
     }
 
-    onScroll(event) {
-        const index = this.findColumnIndex(event.target)
+    onScroll(instance) {
+        // console.log(instance.y)
+        const index = this.findColumnIndex(instance)
         if (index === -1) return
-        const elem = this.refs.elem
+        const { elem } = this.refs
         if (elem) {
-            // listen to scroll end event
-            if (this.mScrollTimeout) {
-                clearTimeout(this.mScrollTimeout)
-            }
-            this.mScrollTimeout = setTimeout(() => this.onScrollEnd(index), 500)
-
-            const column = this.refs[`column${index}`]
-            if (this.mManualScroll[index] != null) {
-                // no null or undefined, use the most updated scrollTop
-                for (const i of Object.keys(this.mManualScroll)) {
-                    if (this.mManualScroll[i] != null) {
-                        const c = this.refs[`column${i}`]
-                        if (c.scrollTop !== this.mManualScroll[i]) {
-                            c.scrollTop = this.mManualScroll[i]
-                            this.mManualScroll[i] = null
-                        }
-                    }
-                }
-            }
-            const selectedBefore = this.state.selected[index]
-            const selectedAfter = this.calculateSelected(column.scrollTop,
-                this.props.rowsVisible, elem.clientHeight)
-            if (selectedBefore !== selectedAfter) {
-                // console.log(`column${index}: ${selectedBefore} => ${selectedAfter}, ${column.scrollTop}`)
+            const selectedOld = this.state.selected[index]
+            const selectedNew = this.calculateSelected(instance.y, this.state.columns[index].list.length, this.props.rowsVisible, elem.clientHeight, instance.scrollerHeight)
+            if (selectedOld !== selectedNew) {
+                // console.log("select new index", selectedNew, selectedOld)
                 const selected = [...this.state.selected]
-                selected[index] = selectedAfter
+                selected[index] = selectedNew
                 const selectedValues = this.getSelectedValues(this.state.columns, selected)
                 this.setState({
                     ...this.state,
@@ -234,6 +239,7 @@ export default class UltraSelect extends Component {
                     title: this.getTitle(selectedValues),
                     //staticText: this.getStaticText(selectedValues),
                 })
+                this.mSelectedNew = true
                 if (this.props.onSelect) {
                     this.props.onSelect(index, selectedValues[index])
                 }
@@ -250,7 +256,7 @@ export default class UltraSelect extends Component {
                 this.setBodyOverflow(true)
             }
             if (this.props.onOpen) {
-                this.props.onOpen()
+                this.props.onOpen(this.selectedValues)
             }
             this.mSelectedOnOpen = this.state.selected
             this.setState({
@@ -263,7 +269,7 @@ export default class UltraSelect extends Component {
                 this.setBodyOverflow(false)
             }
             if (this.props.onClose) {
-                this.props.onClose()
+                this.props.onClose(this.selectedValues)
             }
             if (isCancel === true) {
                 // if cancel selection, revert state
@@ -289,22 +295,31 @@ export default class UltraSelect extends Component {
         }
     }
 
-    onConfirm() {
-        this.onToggle()
-        if (this.props.onConfirm) {
-            setTimeout(() => {
-                this.props.onConfirm()
-            }, 0)
+    onTouchBackdrop() {
+        switch (this.props.backdropAction) {
+        case 'confirm':
+            this.onConfirm()
+            break
+        case 'cancel':
+            this.onCancel()
+            break
+        default:
+            break
         }
     }
 
-    onCancel() {
-        this.onToggle(true)
-        if (this.props.onCancel) {
-            setTimeout(() => {
-                this.props.onCancel()
-            }, 0)
+    onConfirm() {
+        if (this.props.onConfirm) {
+            this.props.onConfirm(this.selectedValues)
         }
+        setTimeout(() => this.onToggle(), 0)
+    }
+
+    onCancel() {
+        if (this.props.onCancel) {
+            this.props.onCancel(this.selectedValues)
+        }
+        setTimeout(() => this.onToggle(true), 0)
     }
 
     getSelectedValues(columns, selected) {
@@ -353,16 +368,21 @@ export default class UltraSelect extends Component {
         }
     }
 
-    calculateSelected(offset, visibleCells, cellHeight) {
+    calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
         const start = Math.floor(visibleCells / 2)
-        const num = Math.round(offset / cellHeight)
-        return start + num
+        const end = numCells - Math.ceil(visibleCells / 2)
+
+        if (offset >= 0) return start
+        const maxOffset = (visibleCells * cellHeight) - totalHeight
+        if (offset <= maxOffset) return end
+
+        return start + Math.round(Math.abs(offset) / cellHeight)
     }
 
     findColumnIndex(instance) {
         for (let i = 0, l = this.state.columns.length; i < l; i++) {
             const column = this.refs[`column${i}`]
-            if (column && column === instance) {
+            if (column && column.iScrollInstance === instance) {
                 return i
             }
         }
@@ -375,25 +395,9 @@ export default class UltraSelect extends Component {
 
     scrollToSelected() {
         for (let i = 0, l = this.state.columns.length; i < l; i++) {
-            const column = this.refs[`column${i}`]
-            if (!column) return
-            const elem = this.refs.elem
+            const { elem } = this.refs
             if (!elem) return
-            const newScrollTop = (this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight
-            if (newScrollTop !== column.scrollTop) {
-                this.mManualScroll[i] = newScrollTop
-                // console.log(`set column${i} scrollTop from ${column.scrollTop} to ${newScrollTop}`)
-                column.scrollTop = newScrollTop
-            }
-        }
-    }
-
-    registerListeners() {
-        for (let i = 0; i < this.state.columns.length; i++) {
-            const column = this.refs[`column${i}`]
-            if (column) {
-                column.onscroll = this.onScroll
-            }
+            this.refs[`column${i}`].iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0)
         }
     }
 
@@ -405,12 +409,9 @@ export default class UltraSelect extends Component {
 
     // store the selected on open selection panel
     mSelectedOnOpen
-    // set scroll timeout because there is not scroll end event
-    mScrollTimeout
-    // mark on setting scrollTop manually
-    mManualScroll = {}
     // use to save body's overflow property before onOpen
     mPrevBodyOverflow
+    mSelectedNew
 
     renderStatic() {
         if (this.props.useTouchTap) {
@@ -426,9 +427,9 @@ export default class UltraSelect extends Component {
     renderBackdrop() {
         if (!this.props.backdrop) return null
         if (this.props.useTouchTap) {
-            return <div className="backdrop" onTouchTap={this.onConfirm}></div>
+            return <div className="backdrop" onTouchTap={this.onTouchBackdrop}></div>
         }
-        return <div className="backdrop" onClick={this.onConfirm}></div>
+        return <div className="backdrop" onClick={this.onTouchBackdrop}></div>
     }
 
     renderCancel() {
@@ -454,35 +455,54 @@ export default class UltraSelect extends Component {
         const rowHeight = `${this.props.rowHeight}${this.props.rowHeightUnit}`
         const titleHeight = this.props.titleHeight ? `${this.props.titleHeight}${this.props.titleHeightUnit}` : rowHeight
         const separatorTop = `${this.props.rowHeight * Math.floor(this.props.rowsVisible / 2)}${this.props.rowHeightUnit}`
-        const numColumns = this.state.columns.length
 
-        return (<span>
-            {this.renderStatic()}
-            <MyPortal>
-                <div className="react-ultra-selector">
-                    {this.renderBackdrop()}
-                    <div className="caption" style={{ bottom: listHeight, height: titleHeight, lineHeight: titleHeight }}>
-                        {this.renderCancel()}
-                        <div className="title">{this.state.title}</div>
-                        {this.renderConfirm()}
+        return (
+            <span>
+                {this.renderStatic()}
+                <MyPortal>
+                    <div className="react-ultra-selector">
+                        {this.renderBackdrop()}
+                        <div className="caption" style={{ bottom: listHeight, height: titleHeight, lineHeight: titleHeight }}>
+                            {this.renderCancel()}
+                            <div className="title">{this.state.title}</div>
+                            {this.renderConfirm()}
+                        </div>
+                        <div className="columns" style={{ height: listHeight }}>
+                            <table style={{ width: '100%', height: '100%', backgroundColor: '#eee' }}>
+                                <tbody>
+                                    <tr>
+                                    {
+                                        this.state.columns.map((elem, index) => (
+                                            <td key={index} style={{ position: 'relative' }}>
+                                                <IScroll
+                                                    ref={`column${index}`} iScroll={iScroll}
+                                                    options={{ mouseWheel: true, probeType: 3, bindToWrapper: true }}
+                                                    onScroll={this.onScroll} onScrollEnd={this.onScrollEnd}
+                                                >
+                                                {
+                                                    elem.list.map((e, i) => (
+                                                        <div
+                                                            className={`elem ${this.getElemClass(i, index)}`} key={i}
+                                                            ref={index === 0 && i === 0 ? 'elem' : null}
+                                                            style={{ height: rowHeight, lineHeight: rowHeight }}
+                                                        >
+                                                            {e.value}
+                                                        </div>
+                                                    ))
+                                                }
+                                                </IScroll>
+                                            </td>
+                                        ))
+                                    }
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div className="separator" style={{ top: separatorTop, height: rowHeight }}></div>
+                        </div>
                     </div>
-                    <div className="columns" style={{ height: listHeight }}>
-                        {
-                            this.state.columns.map((elem, index) =>
-                                <div ref={`column${index}`} key={index} style={{ width: `${100 / numColumns}%`, height: listHeight }} className="column">
-                                {
-                                    elem.list.map((e, i) =>
-                                        <div className={`elem ${this.getElemClass(i, index)}`} key={i} ref={index === 0 && i === 0 ? 'elem' : null} style={{ height: rowHeight, lineHeight: rowHeight }}>
-                                            {e.value}
-                                        </div>)
-                                }
-                                </div>)
-                        }
-                        <div className="separator" style={{ top: separatorTop, height: rowHeight }}></div>
-                    </div>
-                </div>
-            </MyPortal>
-        </span>)
+                </MyPortal>
+            </span>
+        )
     }
 }
 

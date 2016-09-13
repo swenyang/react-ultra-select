@@ -3,7 +3,8 @@ A good substitution for HTML `select` and `option` tags on mobile platforms, bas
 
 Basically React Ultra Select works like the `select` and `option` tags in HTML, however, it supports multi-column selection with event callbacks for implementing more powerful features. Very handy.
 
-Version <= 1.0.10 uses [iScroll][3] which provides smoother scrolling experience, however, increases file size significantly.
+Version 1.0.x uses [iScroll][3] which provides smoother scrolling experience, however, increases file size significantly.
+Version 1.1.x uses `div`'s scrolling event and removes dependency of [iScroll][3], however, it's hard to select when there are a lot of elements. **Still working in progress**.
 
 ## Features
 - **Compatible**
@@ -23,7 +24,7 @@ Version <= 1.0.10 uses [iScroll][3] which provides smoother scrolling experience
 ## How to use
 
 ```
-npm i react-ultra-select --save
+npm i react-ultra-select@1.0.11 --save
 ```
 
 Using it in your project:
@@ -115,6 +116,13 @@ class SomeComponent extends Component {
             <td></td>
         </tr>
         <tr>
+            <td>backdropAction</td>
+            <td>`'confirm'`</td>
+            <td>`'confirm'`, `'cancel'`, or `'none'`</td>
+            <td>The behavior when you click on the backdrop</td>
+            <td></td>
+        </tr>
+        <tr>
             <td>confirmButton</td>
             <td>`'Confirm'`</td>
             <td>String or React Node</td>
@@ -168,21 +176,21 @@ class SomeComponent extends Component {
 
 ## Events/Callbacks
 
-- `onOpen()`
+- `onOpen(selectedValues)`
 
-    Will be called when the selection panel shows up.
+    Will be called when the selection panel shows up with current selected values.
 
-- `onClose()`
+- `onClose(selectedValues)`
 
-    Will be called when the selection panel hides.
+    Will be called when the selection panel hides with current selected values. Called after `onConfirm` and `onCancel`.
 
-- `onConfirm()`
+- `onConfirm(selectedValues)`
 
-    Will be called when the confirm button or backdrop is clicked.
+    Will be called when the confirm button or backdrop is clicked with current selected values.
 
-- `onCancel()`
+- `onCancel(selectedValues)`
 
-    Will be called when the cancel button is clicked.
+    Will be called when the cancel button is clicked with current selected values.
 
 - `onDidSelect(index, selectedValue)`
 
@@ -212,19 +220,16 @@ class SomeComponent extends Component {
 	Clone this repo, and run `npm run examples`. Then navigate to <http://localhost:8080> to see examples.
 
 ## TODO
-- [x] Removing iscroll-probe
+- `div-scroll` branch
 
-	React Ultra Select currently relies on [React IScroll][1] and [iscroll-probe][3], it's a bit too heavy. Should find a smaller solution for calculating selected indecies.
-
-- Smoother scrolling experience with `div`
-
-- Hide vertical scroll bars in non-webkit browsers such as Firefox/IE/Opera etc.
+    1. Smoother scrolling experience with `div` scrolling event
+    2. Hide vertical scroll bars in non-webkit browsers such as Firefox/IE/Opera etc.
 
 - Transitions
 
 	Add some smooth transitions for backdrop and columns showing up and hiding.
 
-- Optimizations
+- Compatibilities & Optimizations
 
 [1]: https://github.com/swenyang/react-iscroll
 [2]: https://github.com/swenyang/react-date-picker

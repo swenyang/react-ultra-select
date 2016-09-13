@@ -239,6 +239,10 @@ class Example extends Component {
                     <UltraSelect
                         columns={customize} rowsVisible={3} rowHeight={4} rowHeightUnit="em" onDidSelect={this.onDidSelect} titleHeight={25}
                         confirmButton="Choose" cancelButton="Give Up" getTitle={this.getTitle} getStaticText={this.getStaticText}
+                        onOpen={e => console.log('open', e[0].key)}
+                        onClose={e => console.log('close', e[0].key)}
+                        onConfirm={e => console.log('confirm', e[0].key)}
+                        onCancel={e => console.log('cancel', e[0].key)}
                     ></UltraSelect>
                 </div>
                 <div className="selection"><b>Load async data: </b>

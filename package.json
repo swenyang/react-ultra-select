@@ -1,14 +1,15 @@
 {
   "name": "react-ultra-select",
-  "version": "1.1.0",
+  "version": "1.0.11",
   "description": "A good substitution for HTML select and option tags on mobile platforms, based on React.",
   "main": "dist/react-ultra-select.js",
   "scripts": {
     "build-dist": "webpack --config webpack.config.js --progress --colors",
-    "build": "npm run build-dist&&export NODE_ENV=production&&npm run build-dist",
+    "build": "npm run lint && npm run build-dist&&export NODE_ENV=production&&npm run build-dist",
     "prepublish": "npm run build",
     "examples": "webpack-dev-server --content-base examples/ --config examples/webpack.config.js --progress --colors --hot --inline",
-    "build-demo": "rm -rf demo&&export NODE_ENV=production&&webpack --config examples/webpack.config.prod.js --progress --colors"
+    "build-demo": "rm -rf demo&&export NODE_ENV=production&&webpack --config examples/webpack.config.prod.js --progress --colors",
+    "lint": "./node_modules/.bin/eslint src/*.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,8 @@
   "homepage": "https://github.com/swenyang/react-ultra-select#readme",
   "dependencies": {
     "deep-equal": "^1.0.1",
+    "iscroll": "^5.2.0",
+    "iscroll-react": "^1.0.3",
     "react": "^15.1.0",
     "react-addons-perf": "^15.1.0",
     "react-dom": "^15.1.0",
