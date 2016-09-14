@@ -12,8 +12,8 @@ const config = {
         react: 'react',
         'react-dom': 'react-dom',
         'deep-equal': 'deep-equal',
-        iscroll: 'iscroll',
         'iscroll-react': 'iscroll-react',
+        'iscroll/build/iscroll-probe': 'iscroll/build/iscroll-probe',
     },
     output: {
         path: path.join(__dirname, 'dist'),
