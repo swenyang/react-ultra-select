@@ -190,9 +190,9 @@ export default class UltraSelect extends Component {
         // use setTimeout(func, 0) to fix async data bugs
         setTimeout(() => {
             for (let i = 0, l = this.state.columns.length; i < l; i++) {
-                const iscroll = this.refs[`column${i}`]
-                if (iscroll) {
-                    iscroll.updateIScroll()
+                const column = this.refs[`column${i}`]
+                if (column) {
+                    column.updateIScroll()
                 }
             }
             this.scrollToSelected()
@@ -308,6 +308,11 @@ export default class UltraSelect extends Component {
         }
     }
 
+    onBlockEvents(e) {
+        e.preventDefault()
+        e.stopPropagation()
+    }
+
     onConfirm() {
         if (this.props.onConfirm) {
             this.props.onConfirm(this.selectedValues)
@@ -397,14 +402,25 @@ export default class UltraSelect extends Component {
         for (let i = 0, l = this.state.columns.length; i < l; i++) {
             const { elem } = this.refs
             if (!elem) return
-            this.refs[`column${i}`].iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0)
+            const column = this.refs[`column${i}`]
+            if (column) {
+                column.iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0)
+            }
         }
     }
 
     concatArrStrings(selectedValues) {
-        return (<span>{
-            selectedValues.map((e, i) => <span key={i}>{i === 0 ? '' : '-'}{e.value}</span>)
-        }</span>)
+        return (
+            <span>
+            {
+                selectedValues.map((e, i) => (
+                    <span key={i}>
+                        {i === 0 ? '' : '-'}{e.value}
+                    </span>
+                ))
+            }
+            </span>
+        )
     }
 
     // store the selected on open selection panel
@@ -415,35 +431,75 @@ export default class UltraSelect extends Component {
 
     renderStatic() {
         if (this.props.useTouchTap) {
-            return (<div className={'react-ultra-selector-static'} onTouchTap={this.onToggle} style={{ background: this.props.disabled ? '#eee' : '#fff' }}>
-                {this.state.staticText}
-            </div>)
+            return (
+                <div
+                    className="react-ultra-selector-static"
+                    onTouchTap={this.onToggle}
+                    style={{ background: this.props.disabled ? '#eee' : '#fff' }}
+                >
+                    {this.state.staticText}
+                </div>
+            )
         }
-        return (<div className={'react-ultra-selector-static'} onClick={this.onToggle} style={{ background: this.props.disabled ? '#eee' : '#fff' }}>
-            {this.state.staticText}
-        </div>)
+        return (
+            <div
+                className="react-ultra-selector-static"
+                onClick={this.onToggle}
+                style={{ background: this.props.disabled ? '#eee' : '#fff' }}
+            >
+                {this.state.staticText}
+            </div>
+        )
     }
 
     renderBackdrop() {
         if (!this.props.backdrop) return null
         if (this.props.useTouchTap) {
-            return <div className="backdrop" onTouchTap={this.onTouchBackdrop}></div>
+            return (
+                <div
+                    className="backdrop"
+                    onTouchTap={this.onTouchBackdrop}
+                    onTouchMove={this.onBlockEvents}
+                />
+            )
         }
-        return <div className="backdrop" onClick={this.onTouchBackdrop}></div>
+        return (
+            <div
+                className="backdrop"
+                onClick={this.onTouchBackdrop}
+                onTouchMove={this.onBlockEvents}
+            />
+        )
     }
 
     renderCancel() {
         if (this.props.useTouchTap) {
-            return <a className="cancel" onTouchTap={this.onCancel}>{this.props.cancelButton}</a>
+            return (
+                <a className="cancel" onTouchTap={this.onCancel}>
+                    {this.props.cancelButton}
+                </a>
+            )
         }
-        return <a className="cancel" onClick={this.onCancel}>{this.props.cancelButton}</a>
+        return (
+            <a className="cancel" onClick={this.onCancel}>
+                {this.props.cancelButton}
+            </a>
+        )
     }
 
     renderConfirm() {
         if (this.props.useTouchTap) {
-            return <a className="confirm" onTouchTap={this.onConfirm}>{this.props.confirmButton}</a>
+            return (
+                <a className="confirm" onTouchTap={this.onConfirm}>
+                    {this.props.confirmButton}
+                </a>
+            )
         }
-        return <a className="confirm" onClick={this.onConfirm}>{this.props.confirmButton}</a>
+        return (
+            <a className="confirm" onClick={this.onConfirm}>
+                {this.props.confirmButton}
+            </a>
+        )
     }
 
     render() {
@@ -462,13 +518,20 @@ export default class UltraSelect extends Component {
                 <MyPortal>
                     <div className="react-ultra-selector">
                         {this.renderBackdrop()}
-                        <div className="caption" style={{ bottom: listHeight, height: titleHeight, lineHeight: titleHeight }}>
+                        <div
+                            className="caption"
+                            style={{ bottom: listHeight, height: titleHeight, lineHeight: titleHeight }}
+                            onTouchMove={this.onBlockEvents}
+                        >
                             {this.renderCancel()}
                             <div className="title">{this.state.title}</div>
                             {this.renderConfirm()}
                         </div>
                         <div className="columns" style={{ height: listHeight }}>
-                            <table style={{ width: '100%', height: '100%', backgroundColor: '#eee' }}>
+                            <table
+                                onTouchMove={this.onBlockEvents}
+                                style={{ width: '100%', height: '100%', backgroundColor: '#eee' }}
+                            >
                                 <tbody>
                                     <tr>
                                     {

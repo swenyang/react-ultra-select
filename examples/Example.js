@@ -21,7 +21,7 @@ class Example extends Component {
             serial: 1,
             repo: 'apple/swift',
             stargazers: {},
-            step: 1,
+            step: 0,
             basic: 0,
         }
     }
@@ -57,7 +57,12 @@ class Example extends Component {
 
     onConfirm() {
         let step = this.state.step
-        step++
+        if (step === 0) {
+            step = 2
+        }
+        else {
+            step++
+        }
         if (step > 2) {
             step = 1
         }
@@ -65,6 +70,7 @@ class Example extends Component {
             ...this.state,
             step,
         })
+        console.log(step)
     }
 
     onConfirmBasic() {
@@ -230,7 +236,7 @@ class Example extends Component {
                 <h2 id="header">React Ultra Selection Examples</h2>
                 <div className="selection"><b>Basic selection </b><UltraSelect ref="basic" columns={basic} onConfirm={this.onConfirmBasic}></UltraSelect></div>
                 <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
-                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 1 ? basic : multiRows} isOpen={this.state.step === 2} onConfirm={this.onConfirm}></UltraSelect></div>
+                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 2 ? multiRows : basic} isOpen={this.state.step === 1} onConfirm={this.onConfirm}></UltraSelect></div>
                 <div className="selection"><b>Dynamic selection </b><div>
                     <span>Click <a onClick={this.onClick}>here</a> to add a row in selection </span>
                     <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>

@@ -301,9 +301,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // use setTimeout(func, 0) to fix async data bugs
 	            setTimeout(function () {
 	                for (var i = 0, l = _this2.state.columns.length; i < l; i++) {
-	                    var iscroll = _this2.refs['column' + i];
-	                    if (iscroll) {
-	                        iscroll.updateIScroll();
+	                    var column = _this2.refs['column' + i];
+	                    if (column) {
+	                        column.updateIScroll();
 	                    }
 	                }
 	                _this2.scrollToSelected();
@@ -421,6 +421,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    }, {
+	        key: 'onBlockEvents',
+	        value: function onBlockEvents(e) {
+	            e.preventDefault();
+	            e.stopPropagation();
+	        }
+	    }, {
 	        key: 'onConfirm',
 	        value: function onConfirm() {
 	            var _this3 = this;
@@ -527,7 +533,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var elem = this.refs.elem;
 
 	                if (!elem) return;
-	                this.refs['column' + i].iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0);
+	                var column = this.refs['column' + i];
+	                if (column) {
+	                    column.iScrollInstance.scrollTo(0, -(this.state.selected[i] - Math.floor(this.props.rowsVisible / 2)) * elem.clientHeight, 0);
+	                }
 	            }
 	        }
 	    }, {
@@ -557,13 +566,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (this.props.useTouchTap) {
 	                return _react2.default.createElement(
 	                    'div',
-	                    { className: 'react-ultra-selector-static', onTouchTap: this.onToggle, style: { background: this.props.disabled ? '#eee' : '#fff' } },
+	                    {
+	                        className: 'react-ultra-selector-static',
+	                        onTouchTap: this.onToggle,
+	                        style: { background: this.props.disabled ? '#eee' : '#fff' }
+	                    },
 	                    this.state.staticText
 	                );
 	            }
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'react-ultra-selector-static', onClick: this.onToggle, style: { background: this.props.disabled ? '#eee' : '#fff' } },
+	                {
+	                    className: 'react-ultra-selector-static',
+	                    onClick: this.onToggle,
+	                    style: { background: this.props.disabled ? '#eee' : '#fff' }
+	                },
 	                this.state.staticText
 	            );
 	        }
@@ -572,9 +589,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function renderBackdrop() {
 	            if (!this.props.backdrop) return null;
 	            if (this.props.useTouchTap) {
-	                return _react2.default.createElement('div', { className: 'backdrop', onTouchTap: this.onTouchBackdrop });
+	                return _react2.default.createElement('div', {
+	                    className: 'backdrop',
+	                    onTouchTap: this.onTouchBackdrop,
+	                    onTouchMove: this.onBlockEvents
+	                });
 	            }
-	            return _react2.default.createElement('div', { className: 'backdrop', onClick: this.onTouchBackdrop });
+	            return _react2.default.createElement('div', {
+	                className: 'backdrop',
+	                onClick: this.onTouchBackdrop,
+	                onTouchMove: this.onBlockEvents
+	            });
 	        }
 	    }, {
 	        key: 'renderCancel',
@@ -635,7 +660,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        this.renderBackdrop(),
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'caption', style: { bottom: listHeight, height: titleHeight, lineHeight: titleHeight } },
+	                            {
+	                                className: 'caption',
+	                                style: { bottom: listHeight, height: titleHeight, lineHeight: titleHeight },
+	                                onTouchMove: this.onBlockEvents
+	                            },
 	                            this.renderCancel(),
 	                            _react2.default.createElement(
 	                                'div',
@@ -649,7 +678,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            { className: 'columns', style: { height: listHeight } },
 	                            _react2.default.createElement(
 	                                'table',
-	                                { style: { width: '100%', height: '100%', backgroundColor: '#eee' } },
+	                                {
+	                                    onTouchMove: this.onBlockEvents,
+	                                    style: { width: '100%', height: '100%', backgroundColor: '#eee' }
+	                                },
 	                                _react2.default.createElement(
 	                                    'tbody',
 	                                    null,

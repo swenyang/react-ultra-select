@@ -24,7 +24,7 @@ Version 1.1.x uses `div`'s scrolling event and removes dependency of [iScroll][3
 ## How to use
 
 ```
-npm i react-ultra-select@1.0.11 --save
+npm i react-ultra-select@1.0.12 --save
 ```
 
 Using it in your project:
