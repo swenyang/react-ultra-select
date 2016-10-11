@@ -76,6 +76,7 @@ export default class UltraSelect extends Component {
         useTouchTap: PropTypes.bool,
 
         disabled: PropTypes.bool,
+        disableCancel: PropTypes.bool,
 
         // events
         onOpen: PropTypes.func,     // open selection panel
@@ -89,7 +90,7 @@ export default class UltraSelect extends Component {
     }
 
     static defaultProps = {
-        rowsVisible: 7,
+        rowsVisible: 5,
         rowHeight: 25,
         rowHeightUnit: 'px',
         titleHeightUnit: 'px',
@@ -97,6 +98,7 @@ export default class UltraSelect extends Component {
         confirmButton: 'Confirm',
         cancelButton: 'Cancel',
         disabled: false,
+        disableCancel: false,
         useTouchTap: false,
         backdropAction: 'confirm',
     }
@@ -121,7 +123,7 @@ export default class UltraSelect extends Component {
             columns,
         }
         if (this.props.isOpen) {
-            this.setBodyOverflow(true)
+            this.setBodyOverflow('hidden')
         }
     }
 
@@ -253,7 +255,7 @@ export default class UltraSelect extends Component {
         }
         if (!this.state.open) {
             if (this.props.backdrop) {
-                this.setBodyOverflow(true)
+                this.setBodyOverflow('hidden')
             }
             if (this.props.onOpen) {
                 this.props.onOpen(this.selectedValues)
@@ -266,7 +268,7 @@ export default class UltraSelect extends Component {
         }
         else {
             if (this.props.backdrop) {
-                this.setBodyOverflow(false)
+                this.setBodyOverflow(null)
             }
             if (this.props.onClose) {
                 this.props.onClose(this.selectedValues)
@@ -321,6 +323,9 @@ export default class UltraSelect extends Component {
     }
 
     onCancel() {
+        if (this.props.disableCancel) {
+            return
+        }
         if (this.props.onCancel) {
             this.props.onCancel(this.selectedValues)
         }
@@ -361,16 +366,9 @@ export default class UltraSelect extends Component {
         }
     }
 
-    setBodyOverflow(isStore) {
+    setBodyOverflow(overflow) {
         /* global document */
-        if (isStore) {
-            this.mPrevBodyOverflow = document.body.style.overflow
-            document.body.style.overflow = 'hidden'
-        }
-        else {
-            document.body.style.overflow = this.mPrevBodyOverflow
-            this.mPrevBodyOverflow = null
-        }
+        document.body.style.overflow = overflow
     }
 
     calculateSelected(offset, numCells, visibleCells, cellHeight, totalHeight) {
@@ -425,8 +423,6 @@ export default class UltraSelect extends Component {
 
     // store the selected on open selection panel
     mSelectedOnOpen
-    // use to save body's overflow property before onOpen
-    mPrevBodyOverflow
     mSelectedNew
 
     renderStatic() {
@@ -473,15 +469,18 @@ export default class UltraSelect extends Component {
     }
 
     renderCancel() {
+        const style = {
+            visibility: this.props.disableCancel ? 'hidden' : 'visible',
+        }
         if (this.props.useTouchTap) {
             return (
-                <a className="cancel" onTouchTap={this.onCancel}>
+                <a className="cancel" style={style} onTouchTap={this.onCancel}>
                     {this.props.cancelButton}
                 </a>
             )
         }
         return (
-            <a className="cancel" onClick={this.onCancel}>
+            <a className="cancel" style={style} onClick={this.onCancel}>
                 {this.props.cancelButton}
             </a>
         )

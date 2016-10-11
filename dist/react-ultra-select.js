@@ -180,7 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            columns: columns
 	        };
 	        if (_this.props.isOpen) {
-	            _this.setBodyOverflow(true);
+	            _this.setBodyOverflow('hidden');
 	        }
 	        return _this;
 	    }
@@ -370,7 +370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            if (!this.state.open) {
 	                if (this.props.backdrop) {
-	                    this.setBodyOverflow(true);
+	                    this.setBodyOverflow('hidden');
 	                }
 	                if (this.props.onOpen) {
 	                    this.props.onOpen(this.selectedValues);
@@ -381,7 +381,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }));
 	            } else {
 	                if (this.props.backdrop) {
-	                    this.setBodyOverflow(false);
+	                    this.setBodyOverflow(null);
 	                }
 	                if (this.props.onClose) {
 	                    this.props.onClose(this.selectedValues);
@@ -443,6 +443,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function onCancel() {
 	            var _this4 = this;
 
+	            if (this.props.disableCancel) {
+	                return;
+	            }
 	            if (this.props.onCancel) {
 	                this.props.onCancel(this.selectedValues);
 	            }
@@ -493,15 +496,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'setBodyOverflow',
-	        value: function setBodyOverflow(isStore) {
+	        value: function setBodyOverflow(overflow) {
 	            /* global document */
-	            if (isStore) {
-	                this.mPrevBodyOverflow = document.body.style.overflow;
-	                document.body.style.overflow = 'hidden';
-	            } else {
-	                document.body.style.overflow = this.mPrevBodyOverflow;
-	                this.mPrevBodyOverflow = null;
-	            }
+	            document.body.style.overflow = overflow;
 	        }
 	    }, {
 	        key: 'calculateSelected',
@@ -558,8 +555,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // store the selected on open selection panel
 
-	        // use to save body's overflow property before onOpen
-
 	    }, {
 	        key: 'renderStatic',
 	        value: function renderStatic() {
@@ -604,16 +599,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'renderCancel',
 	        value: function renderCancel() {
+	            var style = {
+	                visibility: this.props.disableCancel ? 'hidden' : 'visible'
+	            };
 	            if (this.props.useTouchTap) {
 	                return _react2.default.createElement(
 	                    'a',
-	                    { className: 'cancel', onTouchTap: this.onCancel },
+	                    { className: 'cancel', style: style, onTouchTap: this.onCancel },
 	                    this.props.cancelButton
 	                );
 	            }
 	            return _react2.default.createElement(
 	                'a',
-	                { className: 'cancel', onClick: this.onCancel },
+	                { className: 'cancel', style: style, onClick: this.onCancel },
 	                this.props.cancelButton
 	            );
 	        }
@@ -758,6 +756,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    useTouchTap: _react.PropTypes.bool,
 
 	    disabled: _react.PropTypes.bool,
+	    disableCancel: _react.PropTypes.bool,
 
 	    // events
 	    onOpen: _react.PropTypes.func, // open selection panel
@@ -770,7 +769,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onDidSelect: _react.PropTypes.func
 	};
 	UltraSelect.defaultProps = {
-	    rowsVisible: 7,
+	    rowsVisible: 5,
 	    rowHeight: 25,
 	    rowHeightUnit: 'px',
 	    titleHeightUnit: 'px',
@@ -778,6 +777,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    confirmButton: 'Confirm',
 	    cancelButton: 'Cancel',
 	    disabled: false,
+	    disableCancel: false,
 	    useTouchTap: false,
 	    backdropAction: 'confirm'
 	};

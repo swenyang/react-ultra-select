@@ -144,6 +144,13 @@ class SomeComponent extends Component {
             <td></td>
         </tr>
         <tr>
+            <td>disableCancel</td>
+            <td>`false`</td>
+            <td>Boolean</td>
+            <td>Disabled cancel button and make it invisible</td>
+            <td></td>
+        </tr>
+        <tr>
             <td>useTouchTap</td>
             <td>`false`</td>
             <td>Boolean</td>
