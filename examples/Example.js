@@ -56,21 +56,12 @@ class Example extends Component {
     }
 
     onConfirm() {
-        let step = this.state.step
-        if (step === 0) {
-            step = 2
-        }
-        else {
-            step++
-        }
-        if (step > 2) {
-            step = 1
-        }
+        let step = this.state.step + 1
+        step %= 2
         this.setState({
             ...this.state,
             step,
         })
-        console.log(step)
     }
 
     onConfirmBasic() {
@@ -234,12 +225,19 @@ class Example extends Component {
         return (
             <div id="example">
                 <h2 id="header">React Ultra Selection Examples</h2>
-                <div className="selection"><b>Basic selection </b><UltraSelect ref="basic" columns={basic} onConfirm={this.onConfirmBasic}></UltraSelect></div>
-                <div className="selection"><b>Multi-row selection </b><UltraSelect columns={multiRows}></UltraSelect></div>
-                <div className="selection"><b>Cascading Selection</b><UltraSelect columns={this.state.step === 2 ? multiRows : basic} isOpen={this.state.step === 1} onConfirm={this.onConfirm}></UltraSelect></div>
-                <div className="selection"><b>Dynamic selection </b><div>
-                    <span>Click <a onClick={this.onClick}>here</a> to add a row in selection </span>
-                    <UltraSelect columns={dynamic} backdrop={false}></UltraSelect></div>
+                <div className="selection">
+                    <b>Basic selection </b>
+                    <UltraSelect ref="basic" columns={basic} onConfirm={this.onConfirmBasic} />
+                </div>
+                <div className="selection">
+                    <b>Multi-row selection </b>
+                    <UltraSelect columns={multiRows} />
+                </div>
+                <div className="selection"><b>Dynamic selection </b>
+                    <div>
+                        <span>Click <a onClick={this.onClick}>here</a> to add a row in selection </span>
+                        <UltraSelect columns={dynamic} backdrop={false} />
+                    </div>
                 </div>
                 <div className="selection"><b>Customizing </b>
                     <UltraSelect
