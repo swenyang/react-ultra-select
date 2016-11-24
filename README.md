@@ -69,15 +69,15 @@ class SomeComponent extends Component {
 	Sample:
 
 	```js
-	    [
-	        {
-	            list: [{
-	                key: 1,
-	                value: 1
-	            }],
-	            defaultIndex: 0,
-	        }
-	    ]
+	[
+	    {
+	        list: [{
+	            key: 1,
+	            value: 1
+	        }],
+	        defaultIndex: 0,
+	    }
+	]
 	```
 
 ### Optional Props

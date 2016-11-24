@@ -64,7 +64,7 @@ class SomeComponent extends Component {
 	描述：一组包含多列选择数据的数组，每个元素含有一个选择列表和选中的index。
 	样例：
 
-	```js
+	```  
 	[
 	    {
 	        list: [{
