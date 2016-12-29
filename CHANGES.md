@@ -1,5 +1,11 @@
 # Change Logs
 
+## Version 1.0.15
+
+Date: 2016-12-29
+
+- Fix bugs when `isOpen=true` and then click cancel button
+
 ## Version 1.0.14
 
 Date: 2016-10-11

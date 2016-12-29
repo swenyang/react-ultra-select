@@ -275,11 +275,12 @@ export default class UltraSelect extends Component {
             }
             if (isCancel === true) {
                 // if cancel selection, revert state
-                const selectedValues = this.getSelectedValues(this.state.columns, this.mSelectedOnOpen)
+                const selectedOnOpen = this.mSelectedOnOpen || this.state.selected
+                const selectedValues = this.getSelectedValues(this.state.columns, selectedOnOpen)
                 this.setState({
                     ...this.state,
                     open: false,
-                    selected: this.mSelectedOnOpen,
+                    selected: selectedOnOpen,
                     title: this.getTitle(selectedValues),
                     staticText: this.getStaticText(selectedValues),
                 })

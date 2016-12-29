@@ -388,10 +388,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                if (isCancel === true) {
 	                    // if cancel selection, revert state
-	                    var selectedValues = this.getSelectedValues(this.state.columns, this.mSelectedOnOpen);
+	                    var selectedOnOpen = this.mSelectedOnOpen || this.state.selected;
+	                    var selectedValues = this.getSelectedValues(this.state.columns, selectedOnOpen);
 	                    this.setState(_extends({}, this.state, {
 	                        open: false,
-	                        selected: this.mSelectedOnOpen,
+	                        selected: selectedOnOpen,
 	                        title: this.getTitle(selectedValues),
 	                        staticText: this.getStaticText(selectedValues)
 	                    }));
