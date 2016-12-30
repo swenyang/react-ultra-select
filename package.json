@@ -1,6 +1,6 @@
 {
   "name": "react-ultra-select",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A good substitution for HTML select and option tags on mobile platforms, based on React.",
   "main": "dist/react-ultra-select.js",
   "scripts": {
@@ -34,7 +34,6 @@
     "iscroll": "^5.2.0",
     "iscroll-react": "^1.0.3",
     "react": "^15.1.0",
-    "react-addons-perf": "^15.1.0",
     "react-dom": "^15.1.0",
     "whatwg-fetch": "^1.0.0"
   },

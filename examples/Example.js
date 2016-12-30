@@ -1,14 +1,10 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import 'whatwg-fetch'
-import reactPerf from 'react-addons-perf'
 import UltraSelect from '../src/UltraSelect'
 // import UltraSelect from '../dist/react-ultra-select'
 
 import './Example.less'
-
-/* global window */
-window.reactPerf = reactPerf
 
 class Example extends Component {
     constructor(props) {
