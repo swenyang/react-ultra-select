@@ -1,3 +1,5 @@
+**Migarted to [KeyUI Select](https://palifeh5.github.io/key-ui/#/api/select). This repo is not longer maintained.**
+
 # React Ultra Select
 
 [Read Chinese documentation here 中文文档点此](https://github.com/swenyang/react-ultra-select/blob/master/README_zh-cn.md)
